@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <cassert>
+#include <conio.h>
 
 enum class eRules	//진행중인 게임의 룰
 {

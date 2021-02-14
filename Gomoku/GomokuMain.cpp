@@ -3,7 +3,7 @@
 
 int main(void)
 {
-	system("mode con cols=60 lines=30 | title Gomoku");
+	system("mode con cols=100 lines=30 | title Gomoku");
 	GameManager* gameManager = new GameManager();
 	eTitleActions selection;
 	while (true)
