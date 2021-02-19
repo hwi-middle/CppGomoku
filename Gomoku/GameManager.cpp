@@ -120,8 +120,6 @@ void GameManager::StartGame(void)
 
 void GameManager::SetCursor(eInputKeys key)
 {
-	board[cursor.X][cursor.Y] = eStones::NONE;
-
 	switch (key)
 	{
 	case eInputKeys::ARROW_UP:
@@ -155,8 +153,6 @@ void GameManager::SetCursor(eInputKeys key)
 	{
 		cursor.Y = 0;
 	}
-
-	board[cursor.X][cursor.Y] = eStones::CURSOR;
 
 	DrawBoard();
 }
