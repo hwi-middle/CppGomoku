@@ -1,9 +1,12 @@
 #define VERSION ("0.0.1b")
+#define	BOARD_SIZE (15)
+#define X first
+#define Y second
 
 #include "Gomoku.h"
 #include "GameManager.h"
 
-GameManager::GameManager(void)
+GameManager::GameManager(void) :bGameOver(false), cursor({ 0,0 })
 {
 	for (int i = 0; i < 15; i++)
 	{
@@ -18,12 +21,10 @@ eTitleActions GameManager::ShowTitle(void)
 {
 	system("cls");
 
-	int cursor = 0;
+	int title_cursor = 0;
 
 	while (true)
 	{
-		printf("¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦«\n");
-		std::cout << "¦£ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¡Û¦¨ ¦¤\n";
 		std::cout << "v" << VERSION << "\n\n";
 		std::cout << "  .oooooo.                                          oooo                    \n";
 		std::cout << " d8P'  `Y8b                                         `888                    \n";
@@ -37,7 +38,7 @@ eTitleActions GameManager::ShowTitle(void)
 
 		for (int i = 0; i < 3; i++)
 		{
-			if (cursor == i)
+			if (title_cursor == i)
 			{
 				std::cout << ">>";
 			}
@@ -62,27 +63,27 @@ eTitleActions GameManager::ShowTitle(void)
 				break;
 			}
 
-			if (cursor == i)
+			if (title_cursor == i)
 			{
 				std::cout << "<<";
 			}
 			std::cout << "\n";
 		}
 
-		eInputKeys key = GetInputKey(false, 0.0f);
+		eInputKeys key = GetInputKey();
 		switch (key)
 		{
 		case eInputKeys::ARROW_UP:
-			cursor--;
-			if (cursor < 0) cursor = 0;
+			title_cursor--;
+			if (title_cursor < 0) title_cursor = 0;
 			break;
 		case eInputKeys::ARROW_DOWN:
-			cursor++;
-			if (cursor > 2) cursor = 2;
+			title_cursor++;
+			if (title_cursor > 2) title_cursor = 2;
 			break;
 		case eInputKeys::ENTER:
-			if (cursor == 0) return eTitleActions::START;
-			else if (cursor == 1) return eTitleActions::HELP;
+			if (title_cursor == 0) return eTitleActions::START;
+			else if (title_cursor == 1) return eTitleActions::HELP;
 			else return eTitleActions::EXIT;
 			break;
 		default:
@@ -95,14 +96,76 @@ eTitleActions GameManager::ShowTitle(void)
 void GameManager::ShowHelp(void)
 {
 	system("cls");
-	
+
 }
 
 void GameManager::StartGame(void)
 {
-	DrawBoard();
+	while (bGameOver == false)
+	{
+		system("cls");
+		DrawBoard();
+		eInputKeys key = GetInputKey();
+		switch (key)
+		{
+		case eInputKeys::ARROW_UP:
+		case eInputKeys::ARROW_DOWN:
+		case eInputKeys::ARROW_LEFT:
+		case eInputKeys::ARROW_RIGHT:
+			SetCursor(key);
+		}
+	}
 	system("pause");
-	system("cls");
+}
+
+void GameManager::SetCursor(eInputKeys key)
+{
+	board[cursor.X][cursor.Y] = eStones::NONE;
+
+	switch (key)
+	{
+	case eInputKeys::ARROW_UP:
+		cursor.X--;
+		break;
+	case eInputKeys::ARROW_DOWN:
+		cursor.X++;
+		break;
+	case eInputKeys::ARROW_LEFT:
+		cursor.Y--;
+		break;
+	case eInputKeys::ARROW_RIGHT:
+		cursor.Y++;
+		break;
+	}
+
+	if (cursor.X >= BOARD_SIZE)
+	{
+		cursor.X = BOARD_SIZE - 1;
+	}
+	else if (cursor.X < 0)
+	{
+		cursor.X = 0;
+	}
+
+	if (cursor.Y >= BOARD_SIZE)
+	{
+		cursor.Y = BOARD_SIZE - 1;
+	}
+	else if (cursor.Y < 0)
+	{
+		cursor.Y = 0;
+	}
+
+	board[cursor.X][cursor.Y] = eStones::CURSOR;
+
+	DrawBoard();
+}
+
+void GameManager::ModifyBoard() {}
+
+bool GameManager::CheckGameOver()
+{
+	return false;
 }
 
 void GameManager::DrawBoard()
@@ -168,7 +231,7 @@ void GameManager::DrawBoard()
 	}
 }
 
-eInputKeys GameManager::GetInputKey(bool bIsPlaying, float bonusTime)
+eInputKeys GameManager::GetInputKey()
 {
 	while (true)
 	{
@@ -194,12 +257,11 @@ eInputKeys GameManager::GetInputKey(bool bIsPlaying, float bonusTime)
 					break;
 				}
 			}
-			/*
+
 			else if (input == 32)
 			{
 				return eInputKeys::SPACE;
 			}
-			*/
 			else if (input == '\r')
 			{
 				return eInputKeys::ENTER;

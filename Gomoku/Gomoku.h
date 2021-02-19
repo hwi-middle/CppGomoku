@@ -30,6 +30,7 @@ enum class eInputKeys	//유효한 입력 키들
 	ARROW_RIGHT,
 	ARROW_UP,
 	ARROW_DOWN,
+	SPACE,
 	ENTER
 };
 
