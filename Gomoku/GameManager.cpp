@@ -3,6 +3,17 @@
 #include "Gomoku.h"
 #include "GameManager.h"
 
+GameManager::GameManager(void)
+{
+	for (int i = 0; i < 15; i++)
+	{
+		for (int j = 0; j < 15; j++)
+		{
+			board[i][j] = eStones::NONE;
+		}
+	}
+}
+
 eTitleActions GameManager::ShowTitle(void)
 {
 	system("cls");
@@ -11,6 +22,8 @@ eTitleActions GameManager::ShowTitle(void)
 
 	while (true)
 	{
+		printf("¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦« ¦«\n");
+		std::cout << "¦£ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¦¨ ¡Û¦¨ ¦¤\n";
 		std::cout << "v" << VERSION << "\n\n";
 		std::cout << "  .oooooo.                                          oooo                    \n";
 		std::cout << " d8P'  `Y8b                                         `888                    \n";
@@ -81,12 +94,78 @@ eTitleActions GameManager::ShowTitle(void)
 
 void GameManager::ShowHelp(void)
 {
-
+	system("cls");
+	
 }
 
 void GameManager::StartGame(void)
 {
+	DrawBoard();
+	system("pause");
+	system("cls");
+}
 
+void GameManager::DrawBoard()
+{
+	for (int i = 0; i < 15; i++)
+	{
+		for (int j = 0; j < 15; j++)
+		{
+			if (board[i][j] == eStones::BLACK)
+			{
+				std::cout << "¡Ü";
+				continue;
+			}
+			else if (board[i][j] == eStones::WHITE)
+			{
+				std::cout << "¡Û";
+				continue;
+			}
+			else if (board[i][j] == eStones::CURSOR)
+			{
+				std::cout << "¢Á";
+				continue;
+			}
+
+			if (i == 0 && j == 0)
+			{
+				std::cout << "¦£ ";
+			}
+			else if (i == 0 && j == 14)
+			{
+				std::cout << "¦¤ ";
+			}
+			else if (i == 14 && j == 0)
+			{
+				std::cout << "¦¦ ";
+			}
+			else if (i == 14 && j == 14)
+			{
+				std::cout << "¦¥ ";
+			}
+			else if (i == 0)
+			{
+				std::cout << "¦¨ ";
+			}
+			else if (i == 14)
+			{
+				std::cout << "¦ª ";
+			}
+			else if (j == 0)
+			{
+				std::cout << "¦§ ";
+			}
+			else if (j == 14)
+			{
+				std::cout << "¦© ";
+			}
+			else
+			{
+				std::cout << "¦« ";
+			}
+		}
+		std::cout << "\n";
+	}
 }
 
 eInputKeys GameManager::GetInputKey(bool bIsPlaying, float bonusTime)
