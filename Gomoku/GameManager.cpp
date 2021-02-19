@@ -170,10 +170,17 @@ bool GameManager::CheckGameOver()
 
 void GameManager::DrawBoard()
 {
+	board[10][10] = eStones::NOT_PLACEABLE;
 	for (int i = 0; i < 15; i++)
 	{
 		for (int j = 0; j < 15; j++)
 		{
+			if (cursor == std::make_pair(i, j))	//커서 노출이 최우선
+			{
+				std::cout << "⊙";
+				continue;
+			}
+
 			if (board[i][j] == eStones::BLACK)
 			{
 				std::cout << "●";
@@ -184,9 +191,9 @@ void GameManager::DrawBoard()
 				std::cout << "○";
 				continue;
 			}
-			else if (board[i][j] == eStones::CURSOR)
+			else if (board[i][j] == eStones::NOT_PLACEABLE)
 			{
-				std::cout << "⊙";
+				std::cout << "ⓧ";
 				continue;
 			}
 
