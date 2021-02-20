@@ -131,7 +131,7 @@ void GameManager::StartGame(void)
 			break;
 		case eInputKeys::SPACE:
 			try_place = true;
-			success = PlaceStone(cursor);
+			success = PlaceStone();
 			break;
 		}
 
@@ -212,11 +212,10 @@ void GameManager::SetBoardCursor(eInputKeys key)
 	}
 }
 
-ePlaceErrorCodes GameManager::PlaceStone(std::pair<int, int>& cur)
+ePlaceErrorCodes GameManager::PlaceStone()
 {
-	switch (board[cur.X][cur.Y])
+	switch (board[cursor.X][cursor.Y])
 	{
-
 	case eStones::NOT_PLACEABLE:
 		return ePlaceErrorCodes::FAIL_BROKE_CUR_RULE;
 	case eStones::BLACK:
@@ -232,11 +231,13 @@ ePlaceErrorCodes GameManager::PlaceStone(std::pair<int, int>& cur)
 	switch (turn)
 	{
 	case eTurns::BLACK:
-		board[cur.X][cur.Y] = eStones::BLACK;
+		board[cursor.X][cursor.Y] = eStones::BLACK;
+		bGameOver = CheckGameOver();
 		turn = eTurns::WHITE;
 		break;
 	case eTurns::WHITE:
-		board[cur.X][cur.Y] = eStones::WHITE;
+		board[cursor.X][cursor.Y] = eStones::WHITE;
+		bGameOver = CheckGameOver();
 		turn = eTurns::BLACK;
 		break;
 	default:
@@ -249,6 +250,148 @@ ePlaceErrorCodes GameManager::PlaceStone(std::pair<int, int>& cur)
 
 bool GameManager::CheckGameOver()
 {
+	int count;
+	int pos_row;
+	int pos_col;
+
+	eStones color;
+	switch (turn)
+	{
+	case eTurns::BLACK:
+		color = eStones::BLACK;
+		break;
+	case eTurns::WHITE:
+		color = eStones::WHITE;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	/* 가로 점수 확인 */
+	count = 1;
+	pos_col = cursor.X + 1;
+	while (pos_col < BOARD_SIZE) {
+		if (board[cursor.X][pos_col] == color) {
+			count++;
+			pos_col++;
+		}
+		else {
+			break;
+		}
+	}
+
+	pos_col = cursor.X - 1;
+	while (pos_col >= 0) {
+		if (board[cursor.X][pos_col] == color) {
+			count++;
+			pos_col--;
+		}
+		else {
+			break;
+		}
+	}
+
+	/* 측정된 점수 반영 */
+	if (count >= 5) { //프리룰인지 체크해야함(추후 구현)
+		return true;
+	}
+
+	/* 세로 점수 확인 */
+	count = 1;
+	pos_row = cursor.Y + 1;
+	while ((size_t)pos_row < BOARD_SIZE) {
+		if (board[pos_row][cursor.Y] == color) {
+			count++;
+			pos_row++;
+		}
+		else {
+			break;
+		}
+	}
+
+	pos_row = cursor.Y - 1;
+	while (pos_row >= 0) {
+		if (board[pos_row][cursor.Y] == color) {
+			count++;
+			pos_row--;
+		}
+		else {
+			break;
+		}
+	}
+
+	/* 측정된 점수 반영 */
+	if (count >= 5) {
+		return true;
+	}
+
+	/* 좌상향 대각선 점수 확인 */
+	count = 1;
+	pos_col = cursor.X + 1;
+	pos_row = cursor.Y + 1;
+	while (pos_col < BOARD_SIZE && pos_row < BOARD_SIZE) {
+		if (board[pos_row][pos_col] == color) {
+			count++;
+			pos_col++;
+			pos_row++;
+		}
+		else {
+			break;
+		}
+	}
+
+	pos_col = cursor.X - 1;
+	pos_row = cursor.Y - 1;
+	while (pos_col >= 0 && pos_row >= 0) {
+		if (board[pos_row][pos_col] == color) {
+			count++;
+			pos_col--;
+			pos_row--;
+		}
+		else {
+			break;
+		}
+	}
+
+	/* 측정된 점수 반영 */
+	if (count >= 5) {
+		return true;
+	}
+
+	/* 우상향 대각선 점수 확인 */
+	count = 1;
+	pos_col = cursor.X + 1;
+	pos_row = cursor.Y - 1;
+	while (pos_col < BOARD_SIZE && pos_row >= 0) {
+		if (board[pos_row][pos_col] == color) {
+			count++;
+			pos_col++;
+			pos_row--;
+		}
+		else {
+			break;
+		}
+	}
+
+	pos_col = cursor.X - 1;
+	pos_row = cursor.Y + 1;
+	while (pos_col >= 0 && pos_row < BOARD_SIZE) {
+		if (board[pos_row][pos_col] == color) {
+			count++;
+			pos_col--;
+			pos_row++;
+		}
+		else {
+			break;
+		}
+	}
+
+	/* 측정된 점수 반영 */
+	if (count >= 5) {
+		return true;
+	}
+
 	return false;
 }
 

@@ -13,7 +13,7 @@ private:
 	bool bRefreshNeeded;
 	void DrawBoard();
 	void SetBoardCursor(eInputKeys key);
-	ePlaceErrorCodes PlaceStone(std::pair<int, int>& cur);
+	ePlaceErrorCodes PlaceStone();
 	bool CheckGameOver();
 	eInputKeys GetInputKey();
 public:
