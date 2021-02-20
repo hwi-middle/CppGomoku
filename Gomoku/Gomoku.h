@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cassert>
 #include <conio.h>
+#include <Windows.h>
 
 enum class eRules	//진행중인 게임의 룰
 {
@@ -10,7 +11,7 @@ enum class eRules	//진행중인 게임의 룰
 	RENJU
 };
 
-enum class turns	//착수 차례가 된 플레이어
+enum class eTurns	//착수 차례가 된 플레이어
 {
 	BLACK,
 	WHITE
