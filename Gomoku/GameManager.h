@@ -8,6 +8,7 @@ class GameManager
 private:
 	eStones board[BOARD_SIZE][BOARD_SIZE];
 	eTurns turn;
+	eRules currentRule;
 	std::pair<int, int> cursor;
 	bool bGameOver;
 	bool bRefreshNeeded;

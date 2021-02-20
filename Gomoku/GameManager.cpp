@@ -1,4 +1,4 @@
-#define VERSION ("0.0.1b")
+ï»¿#define VERSION ("0.0.1b")
 #define	BOARD_SIZE (15)
 #define X first
 #define Y second
@@ -21,7 +21,7 @@ eTitleActions GameManager::ShowTitle(void)
 {
 	system("cls");
 
-	int title_cursor = 0;
+	int titleCursor = 0;
 
 	while (true)
 	{
@@ -34,11 +34,11 @@ eTitleActions GameManager::ShowTitle(void)
 		std::cout << "`88.    .88'  888   888  888   888   888  888   888  888 `88b.   888   888  \n";
 		std::cout << " `Y8bood8P'   `Y8bod8P\' o888o o888o o888o `Y8bod8P\' o888o o888o  `V88V\"V8P\' \n";
 
-		std::cout << "\n¡Ø»óÇÏ ¹æÇâÅ°·Î ÀÌµ¿, EnterÅ°·Î ¼±ÅÃ\n\n";
+		std::cout << "\nâ€»ìƒí•˜ ë°©í–¥í‚¤ë¡œ ì´ë™, Enterí‚¤ë¡œ ì„ íƒ\n\n";
 
 		for (int i = 0; i < 3; i++)
 		{
-			if (title_cursor == i)
+			if (titleCursor == i)
 			{
 				std::cout << ">>";
 			}
@@ -50,20 +50,20 @@ eTitleActions GameManager::ShowTitle(void)
 			switch (i)
 			{
 			case 0:
-				std::cout << "  °Ô ÀÓ ½Ã ÀÛ  ";
+				std::cout << "  ê²Œ ì„ ì‹œ ì‘  ";
 				break;
 			case 1:
-				std::cout << "  °ÔÀÓ °¡ÀÌµå  ";
+				std::cout << "  ê²Œì„ ê°€ì´ë“œ  ";
 				break;
 			case 2:
-				std::cout << "  °Ô ÀÓ Á¾ ·á  ";
+				std::cout << "  ê²Œ ì„ ì¢… ë£Œ  ";
 				break;
 			default:
 				assert(false);
 				break;
 			}
 
-			if (title_cursor == i)
+			if (titleCursor == i)
 			{
 				std::cout << "<<";
 			}
@@ -74,16 +74,16 @@ eTitleActions GameManager::ShowTitle(void)
 		switch (key)
 		{
 		case eInputKeys::ARROW_UP:
-			title_cursor--;
-			if (title_cursor < 0) title_cursor = 0;
+			titleCursor--;
+			if (titleCursor < 0) titleCursor = 0;
 			break;
 		case eInputKeys::ARROW_DOWN:
-			title_cursor++;
-			if (title_cursor > 2) title_cursor = 2;
+			titleCursor++;
+			if (titleCursor > 2) titleCursor = 2;
 			break;
 		case eInputKeys::ENTER:
-			if (title_cursor == 0) return eTitleActions::START;
-			else if (title_cursor == 1) return eTitleActions::HELP;
+			if (titleCursor == 0) return eTitleActions::START;
+			else if (titleCursor == 1) return eTitleActions::HELP;
 			else return eTitleActions::EXIT;
 			break;
 		default:
@@ -107,18 +107,18 @@ void GameManager::StartGame(void)
 		switch (turn)
 		{
 		case eTurns::BLACK:
-			std::cout << "°ËÀºµ¹";
+			std::cout << "ê²€ì€ëŒ";
 			break;
 		case eTurns::WHITE:
-			std::cout << "Èòµ¹";
+			std::cout << "í°ëŒ";
 			break;
 		default:
 			assert(0);
 			break;
 		}
-		std::cout << "ÀÇ Â÷·ÊÀÔ´Ï´Ù.\n";
+		std::cout << "ì˜ ì°¨ë¡€ì…ë‹ˆë‹¤.\n";
 
-		bool try_place = false;
+		bool tryPlace = false;
 		eInputKeys key = GetInputKey();
 		ePlaceErrorCodes success = ePlaceErrorCodes::SUCCESS;
 		switch (key)
@@ -130,28 +130,28 @@ void GameManager::StartGame(void)
 			SetBoardCursor(key);
 			break;
 		case eInputKeys::SPACE:
-			try_place = true;
+			tryPlace = true;
 			success = PlaceStone();
 			break;
 		}
 
-		if (try_place == true)
+		if (tryPlace == true)
 		{
 			switch (success)
 			{
 			case ePlaceErrorCodes::SUCCESS:
 				break;
 			case ePlaceErrorCodes::FAIL_BROKE_CUR_RULE:
-				std::cout << "·ê¿¡ ÀÇÇØ Âø¼ö°¡ ºÒ°¡´ÉÇÑ °÷ ÀÔ´Ï´Ù.";
+				std::cout << "ë£°ì— ì˜í•´ ì°©ìˆ˜ê°€ ë¶ˆê°€ëŠ¥í•œ ê³³ ì…ë‹ˆë‹¤.";
 				break;
 			case ePlaceErrorCodes::FAIL_ALREADY_EXISTS:
 				switch (board[cursor.X][cursor.Y])
 				{
 				case eStones::BLACK:
-					std::cout << "ÀÌ¹Ì Èæµ¹ÀÌ ³õ¿©Á® ÀÖ½À´Ï´Ù.";
+					std::cout << "ì´ë¯¸ í‘ëŒì´ ë†“ì—¬ì ¸ ìˆìŠµë‹ˆë‹¤.";
 					break;
 				case eStones::WHITE:
-					std::cout << "ÀÌ¹Ì ¹éµ¹ÀÌ ³õ¿©Á® ÀÖ½À´Ï´Ù.";
+					std::cout << "ì´ë¯¸ ë°±ëŒì´ ë†“ì—¬ì ¸ ìˆìŠµë‹ˆë‹¤.";
 					break;
 				default:
 					break;
@@ -170,19 +170,19 @@ void GameManager::StartGame(void)
 		board[cursor.X][cursor.Y] = eStones::WHITE;
 		cursor = { -1,-1 };
 		DrawBoard();
-		std::cout << "Èòµ¹";
+		std::cout << "í°ëŒ";
 		break;
 	case eTurns::WHITE:
 		board[cursor.X][cursor.Y] = eStones::BLACK;
 		cursor = { -1,-1 };
 		DrawBoard();
-		std::cout << "°ËÀºµ¹";
+		std::cout << "ê²€ì€ëŒ";
 		break;
 	default:
 		assert(0);
 		break;
 	}
-	std::cout << "ÀÌ ½Â¸®ÇÏ¿´½À´Ï´Ù!\n";
+	std::cout << "ì´ ìŠ¹ë¦¬í•˜ì˜€ìŠµë‹ˆë‹¤!\n";
 	system("pause");
 }
 void GameManager::SetConsoleCursor(int x, int y)
@@ -277,8 +277,8 @@ ePlaceErrorCodes GameManager::PlaceStone()
 bool GameManager::CheckGameOver()
 {
 	int count;
-	int pos_row;
-	int pos_col;
+	int posRow;
+	int posCol;
 
 	eStones color;
 	switch (turn)
@@ -294,129 +294,126 @@ bool GameManager::CheckGameOver()
 		break;
 	}
 
-	//°¡·Î Á¡¼ö È®ÀÎ 
+	//ê°€ë¡œ ì ìˆ˜ í™•ì¸ 
 	count = 1;
-	pos_col = cursor.X + 1;
-	while (pos_col < BOARD_SIZE) {
-		if (board[cursor.X][pos_col] == color) {
+	posCol = cursor.X + 1;
+	while (posCol < BOARD_SIZE) {
+		if (board[cursor.X][posCol] == color) {
 			count++;
-			pos_col++;
+			posCol++;
 		}
 		else {
 			break;
 		}
 	}
 
-	pos_col = cursor.X - 1;
-	while (pos_col >= 0) {
-		if (board[cursor.X][pos_col] == color) {
+	posCol = cursor.X - 1;
+	while (posCol >= 0) {
+		if (board[cursor.X][posCol] == color) {
 			count++;
-			pos_col--;
+			posCol--;
 		}
 		else {
 			break;
 		}
 	}
 
-	//ÃøÁ¤µÈ Á¡¼ö ¹İ¿µ 
-	if (count >= 5) { //ÇÁ¸®·êÀÎÁö Ã¼Å©ÇØ¾ßÇÔ(ÃßÈÄ ±¸Çö)
+	//ì¸¡ì •ëœ ì ìˆ˜ ë°˜ì˜ 
+	if (count >= 5) { //í”„ë¦¬ë£°ì¸ì§€ ì²´í¬í•´ì•¼í•¨(ì¶”í›„ êµ¬í˜„)
 		return true;
 	}
 
-	//¼¼·Î Á¡¼ö È®ÀÎ 
+	//ì„¸ë¡œ ì ìˆ˜ í™•ì¸ 
 	count = 1;
-	pos_row = cursor.Y + 1;
-	while (pos_row < BOARD_SIZE) {
-		if (board[pos_row][cursor.Y] == color) {
+	posRow = cursor.Y + 1;
+	while (posRow < BOARD_SIZE) {
+		if (board[posRow][cursor.Y] == color) {
 			count++;
-			pos_row++;
+			posRow++;
 		}
 		else {
 			break;
 		}
 	}
 
-	pos_row = cursor.Y - 1;
-	while (pos_row >= 0) {
-		if (board[pos_row][cursor.Y] == color) {
+	posRow = cursor.Y - 1;
+	while (posRow >= 0) {
+		if (board[posRow][cursor.Y] == color) {
 			count++;
-			pos_row--;
+			posRow--;
 		}
 		else {
 			break;
 		}
 	}
 
-	//ÃøÁ¤µÈ Á¡¼ö ¹İ¿µ 
+	//ì¸¡ì •ëœ ì ìˆ˜ ë°˜ì˜ 
 	if (count >= 5) {
 		return true;
 	}
 
-	//ÁÂ»óÇâ ´ë°¢¼± Á¡¼ö È®ÀÎ 
-	std::cout << "ÁÂ»óÇâ Ã¼Å© ½ÃÀÛ\n";
+	//ì¢Œìƒí–¥ ëŒ€ê°ì„  ì ìˆ˜ í™•ì¸ 
 	count = 1;
-	pos_row = cursor.X + 1;
-	pos_col = cursor.Y + 1;
-	while (pos_col < BOARD_SIZE && pos_row < BOARD_SIZE) {
-		if (board[pos_row][pos_col] == color) {
+	posRow = cursor.X + 1;
+	posCol = cursor.Y + 1;
+	while (posCol < BOARD_SIZE && posRow < BOARD_SIZE) {
+		if (board[posRow][posCol] == color) {
 			count++;
-			pos_col++;
-			pos_row++;
-			std::cout << "found: " << pos_row << "," << pos_col << "\n";
+			posCol++;
+			posRow++;
 		}
 		else {
 			break;
 		}
 	}
 
-	pos_row = cursor.X - 1;
-	pos_col = cursor.Y - 1;
-	while (pos_col >= 0 && pos_row >= 0) {
-		if (board[pos_row][pos_col] == color) {
+	posRow = cursor.X - 1;
+	posCol = cursor.Y - 1;
+	while (posCol >= 0 && posRow >= 0) {
+		if (board[posRow][posCol] == color) {
 			count++;
-			pos_col--;
-			pos_row--;
-			std::cout << "found: " << pos_row << "," << pos_col << "\n";
+			posCol--;
+			posRow--;
 		}
 		else {
 			break;
 		}
 	}
 
-	//ÃøÁ¤µÈ Á¡¼ö ¹İ¿µ 
+	//ì¸¡ì •ëœ ì ìˆ˜ ë°˜ì˜ 
 	if (count >= 5) {
 		return true;
 	}
 
-	//¿ì»óÇâ ´ë°¢¼± Á¡¼ö È®ÀÎ 
+	//ìš°ìƒí–¥ ëŒ€ê°ì„  ì ìˆ˜ í™•ì¸ 
 	count = 1;
-	pos_row = cursor.X - 1;
-	pos_col = cursor.Y + 1;
-	while (pos_col < BOARD_SIZE && pos_row >= 0) {
-		if (board[pos_row][pos_col] == color) {
+	posRow = cursor.X - 1;
+	posCol = cursor.Y + 1;
+	while (posCol < BOARD_SIZE && posRow >= 0) {
+		if (board[posRow][posCol] == color) {
 			count++;
-			pos_col++;
-			pos_row--;
+			posCol++;
+			posRow--;
 		}
 		else {
 			break;
 		}
 	}
 
-	pos_row = cursor.X + 1;
-	pos_col = cursor.Y - 1;
-	while (pos_col >= 0 && pos_row < BOARD_SIZE) {
-		if (board[pos_row][pos_col] == color) {
+	posRow = cursor.X + 1;
+	posCol = cursor.Y - 1;
+	while (posCol >= 0 && posRow < BOARD_SIZE) {
+		if (board[posRow][posCol] == color) {
 			count++;
-			pos_col--;
-			pos_row++;
+			posCol--;
+			posRow++;
 		}
 		else {
 			break;
 		}
 	}
 
-	//ÃøÁ¤µÈ Á¡¼ö ¹İ¿µ 
+	//ì¸¡ì •ëœ ì ìˆ˜ ë°˜ì˜ 
 	if (count >= 5) {
 		return true;
 	}
@@ -427,67 +424,75 @@ bool GameManager::CheckGameOver()
 void GameManager::DrawBoard()
 {
 	system("cls");
+	std::cout << "   ";
 	for (int i = 0; i < 15; i++)
 	{
+		std::cout << (char)('A' + i) << " ";
+	}
+	std::cout << "\n";
+
+	for (int i = 0; i < 15; i++)
+	{
+		std::cout << (char)('A' + i) << " ";
 		for (int j = 0; j < 15; j++)
 		{
-			if (cursor == std::make_pair(i, j))	//Ä¿¼­ ³ëÃâÀÌ ÃÖ¿ì¼±
+			if (cursor == std::make_pair(i, j))	//ì»¤ì„œ ë…¸ì¶œì´ ìµœìš°ì„ 
 			{
-				std::cout << "¢Á";
+				std::cout << "âŠ™";
 				continue;
 			}
 
 			if (board[i][j] == eStones::BLACK)
 			{
-				std::cout << "¡Û";
+				std::cout << "â—‹";
 				continue;
 			}
 			else if (board[i][j] == eStones::WHITE)
 			{
-				std::cout << "¡Ü";
+				std::cout << "â—";
 				continue;
 			}
 			else if (board[i][j] == eStones::NOT_PLACEABLE)
 			{
-				std::cout << "¨ä";
+				std::cout << "â“§";
 				continue;
 			}
 
 			if (i == 0 && j == 0)
 			{
-				std::cout << "¦£ ";
+				std::cout << "â”Œ ";
 			}
 			else if (i == 0 && j == 14)
 			{
-				std::cout << "¦¤ ";
+				std::cout << "â” ";
 			}
 			else if (i == 14 && j == 0)
 			{
-				std::cout << "¦¦ ";
+				std::cout << "â”” ";
 			}
 			else if (i == 14 && j == 14)
 			{
-				std::cout << "¦¥ ";
+				std::cout << "â”˜ ";
 			}
 			else if (i == 0)
 			{
-				std::cout << "¦¨ ";
+				std::cout << "â”¬ ";
 			}
 			else if (i == 14)
 			{
-				std::cout << "¦ª ";
+				std::cout << "â”´ ";
 			}
 			else if (j == 0)
 			{
-				std::cout << "¦§ ";
+				std::cout << "â”œ ";
 			}
 			else if (j == 14)
 			{
-				std::cout << "¦© ";
+				std::cout << "â”¤ ";
 			}
 			else
 			{
-				std::cout << "¦« ";
+				std::cout << "â”¼ ";
 			}
 		}
 		std::cout << "\n";
