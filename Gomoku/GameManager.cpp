@@ -267,12 +267,12 @@ void GameManager::DrawBoard()
 
 			if (board[i][j] == eStones::BLACK)
 			{
-				std::cout << "¡Ü";
+				std::cout << "¡Û";
 				continue;
 			}
 			else if (board[i][j] == eStones::WHITE)
 			{
-				std::cout << "¡Û";
+				std::cout << "¡Ü";
 				continue;
 			}
 			else if (board[i][j] == eStones::NOT_PLACEABLE)
