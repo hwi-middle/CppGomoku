@@ -640,9 +640,9 @@ void GameManager::DrawBoard()
 	std::cout << " H E L P ";
 	line++;
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
-	std::cout << "○ : 백돌이 놓인 곳";
+	std::cout << "○ : 흑돌이 놓인 곳";
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
-	std::cout << "● : 흑돌이 놓인 곳";	
+	std::cout << "● : 백돌이 놓인 곳";	
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
 	std::cout << "⊙ : 커서(자신이 놓을 곳)";
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
