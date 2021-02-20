@@ -353,29 +353,30 @@ bool GameManager::CheckGameOver()
 	}
 
 	//좌상향 대각선 점수 확인 
+	std::cout << "좌상향 체크 시작\n";
 	count = 1;
-	pos_col = cursor.X + 1;
-	pos_row = cursor.Y + 1;
+	pos_row = cursor.X + 1;
+	pos_col = cursor.Y + 1;
 	while (pos_col < BOARD_SIZE && pos_row < BOARD_SIZE) {
 		if (board[pos_row][pos_col] == color) {
 			count++;
 			pos_col++;
 			pos_row++;
-			//std::cout << "found: " << pos_row << "," << pos_col << "\n";
+			std::cout << "found: " << pos_row << "," << pos_col << "\n";
 		}
 		else {
 			break;
 		}
 	}
 
-	pos_col = cursor.X - 1;
-	pos_row = cursor.Y - 1;
+	pos_row = cursor.X - 1;
+	pos_col = cursor.Y - 1;
 	while (pos_col >= 0 && pos_row >= 0) {
 		if (board[pos_row][pos_col] == color) {
 			count++;
 			pos_col--;
 			pos_row--;
-			//std::cout << "found: " << pos_row << "," << pos_col << "\n";
+			std::cout << "found: " << pos_row << "," << pos_col << "\n";
 		}
 		else {
 			break;
@@ -389,8 +390,8 @@ bool GameManager::CheckGameOver()
 
 	//우상향 대각선 점수 확인 
 	count = 1;
-	pos_col = cursor.X + 1;
-	pos_row = cursor.Y - 1;
+	pos_row = cursor.X - 1;
+	pos_col = cursor.Y + 1;
 	while (pos_col < BOARD_SIZE && pos_row >= 0) {
 		if (board[pos_row][pos_col] == color) {
 			count++;
@@ -402,8 +403,8 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	pos_col = cursor.X - 1;
-	pos_row = cursor.Y + 1;
+	pos_row = cursor.X + 1;
+	pos_col = cursor.Y - 1;
 	while (pos_col >= 0 && pos_row < BOARD_SIZE) {
 		if (board[pos_row][pos_col] == color) {
 			count++;
