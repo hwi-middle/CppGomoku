@@ -10,9 +10,11 @@ private:
 	eTurns turn;
 	eRules currentRule;
 	std::pair<int, int> cursor;
+	std::vector<std::pair<int, int>> final_stones;
 	bool bGameOver;
 	bool bRefreshNeeded;
 	void DrawBoard();
+	void SetConsoleCursorAbsoluteCoordinate(int x, int y);
 	void SetConsoleCursorByBoardCoordinate(int x, int y);
 	void SetConsoleCursorToSystemMessageZone();
 	void PrintBoardCharByCoordinate(int x, int y);

@@ -114,13 +114,13 @@ void GameManager::StartGame(void)
 			std::cout << "흑돌";
 			break;
 		case eTurns::WHITE:
-			std::cout << "흰돌";
+			std::cout << "백돌";
 			break;
 		default:
 			assert(0);
 			break;
 		}
-		std::cout << "의 차례입니다.         \n";
+		std::cout << "의 차례입니다.\n";
 
 		bool tryPlace = false;
 		eInputKeys key = GetInputKey();
@@ -189,6 +189,12 @@ void GameManager::StartGame(void)
 	}
 	std::cout << "이 승리하였습니다!\n";
 	system("pause");
+}
+
+void GameManager::SetConsoleCursorAbsoluteCoordinate(int x, int y)
+{
+	COORD cur = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
 }
 
 void GameManager::SetConsoleCursorByBoardCoordinate(int x, int y)
@@ -535,6 +541,121 @@ void GameManager::DrawBoard()
 		}
 		std::cout << "\n";
 	}
+	
+	int w = 30;
+	int h = 9;
+	for (int i = 1; i <= h; i++)
+	{
+		SetConsoleCursorAbsoluteCoordinate(34, i - 1);
+		for (int j = 1; j <= w; j++)
+		{
+			if (i == 1 && j == 1)
+			{
+				std::cout << "┌ ";
+			}
+			else if (i == 1 && j == w)
+			{
+				std::cout << "┐ ";
+			}
+			else if (i == h && j == 1)
+			{
+				std::cout << "└ ";
+			}
+			else if (i == h && j == w)
+			{
+				std::cout << "┘ ";
+			}
+			else if (i == 1)
+			{
+				std::cout << "─ ";
+			}
+			else if (i == h)
+			{
+				std::cout << "─ ";
+			}
+			else if (j == 1)
+			{
+				std::cout << "│ ";
+			}
+			else if (j == w)
+			{
+				std::cout << "│ ";
+			}
+			else
+			{
+				std::cout << "  ";
+			}
+		}
+		std::cout << "\n";
+	}
+
+	h = 7;
+	for (int i = 1; i <= h; i++)
+	{
+		SetConsoleCursorAbsoluteCoordinate(34, i + 8);
+		for (int j = 1; j <= w; j++)
+		{
+			if (i == 1 && j == 1)
+			{
+				std::cout << "┌ ";
+			}
+			else if (i == 1 && j == w)
+			{
+				std::cout << "┐ ";
+			}
+			else if (i == h && j == 1)
+			{
+				std::cout << "└ ";
+			}
+			else if (i == h && j == w)
+			{
+				std::cout << "┘ ";
+			}
+			else if (i == 1)
+			{
+				std::cout << "─ ";
+			}
+			else if (i == h)
+			{
+				std::cout << "─ ";
+			}
+			else if (j == 1)
+			{
+				std::cout << "│ ";
+			}
+			else if (j == w)
+			{
+				std::cout << "│ ";
+			}
+			else
+			{
+				std::cout << "  ";
+			}
+		}
+		std::cout << "\n";
+	}
+
+	int line = 0;
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << " H E L P ";
+	line++;
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << "○ : 백돌이 놓인 곳";
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << "● : 흑돌이 놓인 곳";	
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << "⊙ : 커서(자신이 놓을 곳)";
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << "←↑↓→ : 커서 이동";
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << "ENTER : 착수(돌 놓기)";
+
+	line = 9;
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << " M E S S A G E ";
+	line++;
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << "여기에는 시스템 메시지가 표시되어야 합니다.";
 }
 
 eInputKeys GameManager::GetInputKey()
