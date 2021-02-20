@@ -4,10 +4,11 @@
 int main(void)
 {
 	system("mode con cols=100 lines=30 | title Gomoku");
-	GameManager* gameManager = new GameManager();
-	eTitleActions selection;
 	while (true)
 	{
+		GameManager* gameManager = new GameManager();
+		eTitleActions selection;
+
 		selection = gameManager->ShowTitle();
 
 		switch (selection)

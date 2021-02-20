@@ -163,6 +163,32 @@ void GameManager::StartGame(void)
 			}
 		}
 	}
+
+	switch (turn)
+	{
+	case eTurns::BLACK:
+		board[cursor.X][cursor.Y] = eStones::WHITE;
+		cursor = { -1,-1 };
+		DrawBoard();
+		std::cout << "흰돌";
+		break;
+	case eTurns::WHITE:
+		board[cursor.X][cursor.Y] = eStones::BLACK;
+		cursor = { -1,-1 };
+		DrawBoard();
+		std::cout << "검은돌";
+		break;
+	default:
+		assert(0);
+		break;
+	}
+	std::cout << "이 승리하였습니다!\n";
+	system("pause");
+}
+void GameManager::SetConsoleCursor(int x, int y)
+{
+	COORD cur = { x,y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
 }
 
 void GameManager::SetBoardCursor(eInputKeys key)
@@ -268,7 +294,7 @@ bool GameManager::CheckGameOver()
 		break;
 	}
 
-	/* 가로 점수 확인 */
+	//가로 점수 확인 
 	count = 1;
 	pos_col = cursor.X + 1;
 	while (pos_col < BOARD_SIZE) {
@@ -292,15 +318,15 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	/* 측정된 점수 반영 */
+	//측정된 점수 반영 
 	if (count >= 5) { //프리룰인지 체크해야함(추후 구현)
 		return true;
 	}
 
-	/* 세로 점수 확인 */
+	//세로 점수 확인 
 	count = 1;
 	pos_row = cursor.Y + 1;
-	while ((size_t)pos_row < BOARD_SIZE) {
+	while (pos_row < BOARD_SIZE) {
 		if (board[pos_row][cursor.Y] == color) {
 			count++;
 			pos_row++;
@@ -321,12 +347,12 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	/* 측정된 점수 반영 */
+	//측정된 점수 반영 
 	if (count >= 5) {
 		return true;
 	}
 
-	/* 좌상향 대각선 점수 확인 */
+	//좌상향 대각선 점수 확인 
 	count = 1;
 	pos_col = cursor.X + 1;
 	pos_row = cursor.Y + 1;
@@ -335,6 +361,7 @@ bool GameManager::CheckGameOver()
 			count++;
 			pos_col++;
 			pos_row++;
+			//std::cout << "found: " << pos_row << "," << pos_col << "\n";
 		}
 		else {
 			break;
@@ -348,18 +375,19 @@ bool GameManager::CheckGameOver()
 			count++;
 			pos_col--;
 			pos_row--;
+			//std::cout << "found: " << pos_row << "," << pos_col << "\n";
 		}
 		else {
 			break;
 		}
 	}
 
-	/* 측정된 점수 반영 */
+	//측정된 점수 반영 
 	if (count >= 5) {
 		return true;
 	}
 
-	/* 우상향 대각선 점수 확인 */
+	//우상향 대각선 점수 확인 
 	count = 1;
 	pos_col = cursor.X + 1;
 	pos_row = cursor.Y - 1;
@@ -387,7 +415,7 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	/* 측정된 점수 반영 */
+	//측정된 점수 반영 
 	if (count >= 5) {
 		return true;
 	}

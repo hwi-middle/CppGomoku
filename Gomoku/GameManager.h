@@ -12,6 +12,7 @@ private:
 	bool bGameOver;
 	bool bRefreshNeeded;
 	void DrawBoard();
+	void SetConsoleCursor(int x, int y);
 	void SetBoardCursor(eInputKeys key);
 	ePlaceErrorCodes PlaceStone();
 	bool CheckGameOver();
