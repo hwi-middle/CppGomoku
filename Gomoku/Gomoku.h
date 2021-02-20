@@ -17,6 +17,13 @@ enum class eTurns	//착수 차례가 된 플레이어
 	WHITE
 };
 
+enum class ePlaceErrorCodes
+{
+	SUCCESS,
+	FAIL_BROKE_CUR_RULE,
+	FAIL_ALREADY_EXISTS
+};
+
 enum class eStones	//각 칸에 올 수 있는 돌
 {
 	NONE,

@@ -6,7 +6,7 @@
 #include "Gomoku.h"
 #include "GameManager.h"
 
-GameManager::GameManager(void) :bGameOver(false), cursor({ 0,0 })
+GameManager::GameManager(void) :bGameOver(false), cursor({ 0,0 }), turn(eTurns::BLACK)
 {
 	for (int i = 0; i < 15; i++)
 	{
@@ -113,6 +113,10 @@ void GameManager::StartGame(void)
 		case eInputKeys::ARROW_LEFT:
 		case eInputKeys::ARROW_RIGHT:
 			SetCursor(key);
+			break;
+		case eInputKeys::ENTER:
+			PlaceStone(cursor);
+			break;
 		}
 	}
 	system("pause");
@@ -157,7 +161,40 @@ void GameManager::SetCursor(eInputKeys key)
 	DrawBoard();
 }
 
-void GameManager::ModifyBoard() {}
+ePlaceErrorCodes GameManager::PlaceStone(std::pair<int, int>& cur)
+{
+	switch (board[cur.X][cur.Y])
+	{
+
+	case eStones::NOT_PLACEABLE:
+		return ePlaceErrorCodes::FAIL_BROKE_CUR_RULE;
+	case eStones::BLACK:
+	case eStones::WHITE:
+		return ePlaceErrorCodes::FAIL_ALREADY_EXISTS;
+	case eStones::NONE:
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	switch (turn)
+	{
+	case eTurns::BLACK:
+		board[cur.X][cur.Y] = eStones::BLACK;
+		turn = eTurns::WHITE;
+		break;
+	case eTurns::WHITE:
+		board[cur.X][cur.Y] = eStones::WHITE;
+		turn = eTurns::BLACK;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	return ePlaceErrorCodes::SUCCESS;
+}
 
 bool GameManager::CheckGameOver()
 {
@@ -166,7 +203,6 @@ bool GameManager::CheckGameOver()
 
 void GameManager::DrawBoard()
 {
-	board[10][10] = eStones::NOT_PLACEABLE;
 	for (int i = 0; i < 15; i++)
 	{
 		for (int j = 0; j < 15; j++)
