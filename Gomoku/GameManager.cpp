@@ -6,7 +6,7 @@
 #include "Gomoku.h"
 #include "GameManager.h"
 
-GameManager::GameManager(void) :bGameOver(false), bRefreshNeeded(true), cursor({ 0,0 }), turn(eTurns::BLACK)
+GameManager::GameManager(eRules rule) :bGameOver(false), bRefreshNeeded(true), cursor({ 0,0 }), turn(eTurns::BLACK), currentRule(rule)
 {
 	for (int i = 0; i < 15; i++)
 	{
@@ -102,12 +102,16 @@ void GameManager::ShowHelp(void)
 void GameManager::StartGame(void)
 {
 	DrawBoard();
+	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
+	PrintBoardCharByCoordinate(cursor.X, cursor.Y);
+	SetConsoleCursorToSystemMessageZone();
+
 	while (bGameOver == false)
 	{
 		switch (turn)
 		{
 		case eTurns::BLACK:
-			std::cout << "검은돌";
+			std::cout << "흑돌";
 			break;
 		case eTurns::WHITE:
 			std::cout << "흰돌";
@@ -116,7 +120,7 @@ void GameManager::StartGame(void)
 			assert(0);
 			break;
 		}
-		std::cout << "의 차례입니다.\n";
+		std::cout << "의 차례입니다.         \n";
 
 		bool tryPlace = false;
 		eInputKeys key = GetInputKey();
@@ -127,7 +131,7 @@ void GameManager::StartGame(void)
 		case eInputKeys::ARROW_DOWN:
 		case eInputKeys::ARROW_LEFT:
 		case eInputKeys::ARROW_RIGHT:
-			SetBoardCursor(key);
+			SetAndPrintBoardCursor(key);
 			break;
 		case eInputKeys::SPACE:
 			tryPlace = true;
@@ -137,21 +141,22 @@ void GameManager::StartGame(void)
 
 		if (tryPlace == true)
 		{
+			SetConsoleCursorToSystemMessageZone();
 			switch (success)
 			{
 			case ePlaceErrorCodes::SUCCESS:
 				break;
 			case ePlaceErrorCodes::FAIL_BROKE_CUR_RULE:
-				std::cout << "룰에 의해 착수가 불가능한 곳 입니다.";
+				std::cout << "오류: 룰에 의해 착수가 불가능한 곳 입니다.\n";
 				break;
 			case ePlaceErrorCodes::FAIL_ALREADY_EXISTS:
 				switch (board[cursor.X][cursor.Y])
 				{
 				case eStones::BLACK:
-					std::cout << "이미 흑돌이 놓여져 있습니다.";
+					std::cout << "오류: 이미 흑돌이 놓여져 있습니다.\n";
 					break;
 				case eStones::WHITE:
-					std::cout << "이미 백돌이 놓여져 있습니다.";
+					std::cout << "오류: 이미 백돌이 놓여져 있습니다.\n";
 					break;
 				default:
 					break;
@@ -185,14 +190,99 @@ void GameManager::StartGame(void)
 	std::cout << "이 승리하였습니다!\n";
 	system("pause");
 }
-void GameManager::SetConsoleCursor(int x, int y)
+
+void GameManager::SetConsoleCursorByBoardCoordinate(int x, int y)
 {
-	COORD cur = { x,y };
+	//API는 x와 y가 반대
+	COORD cur = { 2 + cursor.Y * 2, 1 + cursor.X };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
 }
 
-void GameManager::SetBoardCursor(eInputKeys key)
+void GameManager::SetConsoleCursorToSystemMessageZone()
 {
+	//API는 x와 y가 반대
+	COORD cur = { 0, 16 };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
+
+	for (int i = 0; i < 5; i++) 
+	{
+		for (int j = 0; j < 80; j++)
+		{
+			std::cout << " ";
+		}
+		std::cout << "\n";
+	}
+
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
+}
+
+void GameManager::PrintBoardCharByCoordinate(int x, int y)
+{
+	if (cursor == std::make_pair(x, y))	//커서 노출이 최우선
+	{
+		std::cout << "⊙";
+		return;
+	}
+
+	if (board[x][y] == eStones::BLACK)
+	{
+		std::cout << "○";
+		return;
+	}
+	else if (board[x][y] == eStones::WHITE)
+	{
+		std::cout << "●";
+		return;
+	}
+	else if (board[x][y] == eStones::NOT_PLACEABLE)
+	{
+		std::cout << "ⓧ";
+		return;
+	}
+
+	if (x == 0 && y == 0)
+	{
+		std::cout << "┌ ";
+	}
+	else if (x == 0 && y == 14)
+	{
+		std::cout << "┐ ";
+	}
+	else if (x == 14 && y == 0)
+	{
+		std::cout << "└ ";
+	}
+	else if (x == 14 && y == 14)
+	{
+		std::cout << "┘ ";
+	}
+	else if (x == 0)
+	{
+		std::cout << "┬ ";
+	}
+	else if (x == 14)
+	{
+		std::cout << "┴ ";
+	}
+	else if (y == 0)
+	{
+		std::cout << "├ ";
+	}
+	else if (y == 14)
+	{
+		std::cout << "┤ ";
+	}
+	else
+	{
+		std::cout << "┼ ";
+	}
+}
+
+void GameManager::SetAndPrintBoardCursor(eInputKeys key)
+{
+	std::pair<int, int> prev = { cursor.X, cursor.Y };
+	
+	SetConsoleCursorByBoardCoordinate(prev.X, prev.Y);
 	switch (key)
 	{
 	case eInputKeys::ARROW_UP:
@@ -231,11 +321,12 @@ void GameManager::SetBoardCursor(eInputKeys key)
 		cursor.Y = 0;
 		bRefreshNeeded = false;
 	}
-
-	if (bRefreshNeeded == true)
-	{
-		DrawBoard();
-	}
+	
+	PrintBoardCharByCoordinate(prev.X, prev.Y);
+	SetConsoleCursorToSystemMessageZone();
+	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
+	PrintBoardCharByCoordinate(cursor.X, cursor.Y);
+	SetConsoleCursorToSystemMessageZone();
 }
 
 ePlaceErrorCodes GameManager::PlaceStone()
@@ -254,15 +345,18 @@ ePlaceErrorCodes GameManager::PlaceStone()
 		break;
 	}
 
+	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
 	switch (turn)
 	{
 	case eTurns::BLACK:
 		board[cursor.X][cursor.Y] = eStones::BLACK;
+		std::cout << "○";
 		bGameOver = CheckGameOver();
 		turn = eTurns::WHITE;
 		break;
 	case eTurns::WHITE:
 		board[cursor.X][cursor.Y] = eStones::WHITE;
+		std::cout << "●";
 		bGameOver = CheckGameOver();
 		turn = eTurns::BLACK;
 		break;
@@ -270,6 +364,7 @@ ePlaceErrorCodes GameManager::PlaceStone()
 		assert(0);
 		break;
 	}
+	SetConsoleCursorToSystemMessageZone();
 
 	return ePlaceErrorCodes::SUCCESS;
 }
@@ -424,7 +519,7 @@ bool GameManager::CheckGameOver()
 void GameManager::DrawBoard()
 {
 	system("cls");
-	std::cout << "   ";
+	std::cout << "  ";
 	for (int i = 0; i < 15; i++)
 	{
 		std::cout << (char)('A' + i) << " ";
@@ -436,64 +531,7 @@ void GameManager::DrawBoard()
 		std::cout << (char)('A' + i) << " ";
 		for (int j = 0; j < 15; j++)
 		{
-			if (cursor == std::make_pair(i, j))	//커서 노출이 최우선
-			{
-				std::cout << "⊙";
-				continue;
-			}
-
-			if (board[i][j] == eStones::BLACK)
-			{
-				std::cout << "○";
-				continue;
-			}
-			else if (board[i][j] == eStones::WHITE)
-			{
-				std::cout << "●";
-				continue;
-			}
-			else if (board[i][j] == eStones::NOT_PLACEABLE)
-			{
-				std::cout << "ⓧ";
-				continue;
-			}
-
-			if (i == 0 && j == 0)
-			{
-				std::cout << "┌ ";
-			}
-			else if (i == 0 && j == 14)
-			{
-				std::cout << "┐ ";
-			}
-			else if (i == 14 && j == 0)
-			{
-				std::cout << "└ ";
-			}
-			else if (i == 14 && j == 14)
-			{
-				std::cout << "┘ ";
-			}
-			else if (i == 0)
-			{
-				std::cout << "┬ ";
-			}
-			else if (i == 14)
-			{
-				std::cout << "┴ ";
-			}
-			else if (j == 0)
-			{
-				std::cout << "├ ";
-			}
-			else if (j == 14)
-			{
-				std::cout << "┤ ";
-			}
-			else
-			{
-				std::cout << "┼ ";
-			}
+			PrintBoardCharByCoordinate(i, j);
 		}
 		std::cout << "\n";
 	}

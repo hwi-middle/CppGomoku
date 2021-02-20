@@ -13,13 +13,15 @@ private:
 	bool bGameOver;
 	bool bRefreshNeeded;
 	void DrawBoard();
-	void SetConsoleCursor(int x, int y);
-	void SetBoardCursor(eInputKeys key);
+	void SetConsoleCursorByBoardCoordinate(int x, int y);
+	void SetConsoleCursorToSystemMessageZone();
+	void PrintBoardCharByCoordinate(int x, int y);
+	void SetAndPrintBoardCursor(eInputKeys key);
 	ePlaceErrorCodes PlaceStone();
 	bool CheckGameOver();
 	eInputKeys GetInputKey();
 public:
-	GameManager(void);
+	GameManager(eRules rule);
 	eTitleActions ShowTitle(void);
 	void ShowHelp(void);
 	void StartGame(void);

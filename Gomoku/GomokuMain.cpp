@@ -6,7 +6,7 @@ int main(void)
 	system("mode con cols=100 lines=30 | title Gomoku");
 	while (true)
 	{
-		GameManager* gameManager = new GameManager();
+		GameManager* gameManager = new GameManager(eRules::FREE);
 		eTitleActions selection;
 
 		selection = gameManager->ShowTitle();
