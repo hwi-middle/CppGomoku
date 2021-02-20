@@ -6,7 +6,7 @@
 #include "Gomoku.h"
 #include "GameManager.h"
 
-GameManager::GameManager(void) :bGameOver(false), cursor({ 0,0 }), turn(eTurns::BLACK)
+GameManager::GameManager(void) :bGameOver(false), bRefreshNeeded(true), cursor({ 0,0 }), turn(eTurns::BLACK)
 {
 	for (int i = 0; i < 15; i++)
 	{
@@ -101,28 +101,71 @@ void GameManager::ShowHelp(void)
 
 void GameManager::StartGame(void)
 {
+	DrawBoard();
 	while (bGameOver == false)
 	{
-		system("cls");
-		DrawBoard();
+		switch (turn)
+		{
+		case eTurns::BLACK:
+			std::cout << "검은돌";
+			break;
+		case eTurns::WHITE:
+			std::cout << "흰돌";
+			break;
+		default:
+			assert(0);
+			break;
+		}
+		std::cout << "의 차례입니다.\n";
+
+		bool try_place = false;
 		eInputKeys key = GetInputKey();
+		ePlaceErrorCodes success = ePlaceErrorCodes::SUCCESS;
 		switch (key)
 		{
 		case eInputKeys::ARROW_UP:
 		case eInputKeys::ARROW_DOWN:
 		case eInputKeys::ARROW_LEFT:
 		case eInputKeys::ARROW_RIGHT:
-			SetCursor(key);
+			SetBoardCursor(key);
 			break;
-		case eInputKeys::ENTER:
-			PlaceStone(cursor);
+		case eInputKeys::SPACE:
+			try_place = true;
+			success = PlaceStone(cursor);
 			break;
 		}
+
+		if (try_place == true)
+		{
+			switch (success)
+			{
+			case ePlaceErrorCodes::SUCCESS:
+				break;
+			case ePlaceErrorCodes::FAIL_BROKE_CUR_RULE:
+				std::cout << "룰에 의해 착수가 불가능한 곳 입니다.";
+				break;
+			case ePlaceErrorCodes::FAIL_ALREADY_EXISTS:
+				switch (board[cursor.X][cursor.Y])
+				{
+				case eStones::BLACK:
+					std::cout << "이미 흑돌이 놓여져 있습니다.";
+					break;
+				case eStones::WHITE:
+					std::cout << "이미 백돌이 놓여져 있습니다.";
+					break;
+				default:
+					break;
+				}
+				break;
+			default:
+				assert(0);
+				break;
+			}
+		}
 	}
-	system("pause");
 }
 
-void GameManager::SetCursor(eInputKeys key)
+void GameManager::SetBoardCursor(eInputKeys key)
 {
 	switch (key)
 	{
@@ -140,25 +183,33 @@ void GameManager::SetCursor(eInputKeys key)
 		break;
 	}
 
+	bRefreshNeeded = true;
 	if (cursor.X >= BOARD_SIZE)
 	{
 		cursor.X = BOARD_SIZE - 1;
+		bRefreshNeeded = false;
 	}
 	else if (cursor.X < 0)
 	{
 		cursor.X = 0;
+		bRefreshNeeded = false;
 	}
 
 	if (cursor.Y >= BOARD_SIZE)
 	{
 		cursor.Y = BOARD_SIZE - 1;
+		bRefreshNeeded = false;
 	}
 	else if (cursor.Y < 0)
 	{
 		cursor.Y = 0;
+		bRefreshNeeded = false;
 	}
 
-	DrawBoard();
+	if (bRefreshNeeded == true)
+	{
+		DrawBoard();
+	}
 }
 
 ePlaceErrorCodes GameManager::PlaceStone(std::pair<int, int>& cur)
@@ -203,6 +254,7 @@ bool GameManager::CheckGameOver()
 
 void GameManager::DrawBoard()
 {
+	system("cls");
 	for (int i = 0; i < 15; i++)
 	{
 		for (int j = 0; j < 15; j++)

@@ -10,8 +10,9 @@ private:
 	eTurns turn;
 	std::pair<int, int> cursor;
 	bool bGameOver;
+	bool bRefreshNeeded;
 	void DrawBoard();
-	void SetCursor(eInputKeys key);
+	void SetBoardCursor(eInputKeys key);
 	ePlaceErrorCodes PlaceStone(std::pair<int, int>& cur);
 	bool CheckGameOver();
 	eInputKeys GetInputKey();
