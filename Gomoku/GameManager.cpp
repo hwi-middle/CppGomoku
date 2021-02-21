@@ -153,15 +153,15 @@ void GameManager::StartGame(void)
 			{
 				if (errorCode == ePlaceErrorCodes::FAIL_BROKE_CUR_RULE)
 				{
-					PrintSystemMessage("오류: 룰에 의해 착수가 불가능한 곳 입니다.\n", true);
+					PrintSystemMessage("오류: 룰에 의해 착수가 불가능한 곳 입니다.", true);
 				}
 				else if (errorCode == ePlaceErrorCodes::FAIL_BLACK_STONE_EXISTS)
 				{
-					PrintSystemMessage("오류: 이미 흑돌이 놓여져 있습니다.\n", true);
+					PrintSystemMessage("오류: 이미 흑돌이 놓여져 있습니다.", true);
 				}
 				else if (errorCode == ePlaceErrorCodes::FAIL_WHITE_STONE_EXISTS)
 				{
-					PrintSystemMessage("오류: 이미 백돌이 놓여져 있습니다.\n", true);
+					PrintSystemMessage("오류: 이미 백돌이 놓여져 있습니다.", true);
 				}
 			}
 			prevErrorCode = errorCode;
@@ -208,20 +208,24 @@ void GameManager::SetConsoleCursorByBoardCoordinate(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
 }
 
-void GameManager::PrintSystemMessage(std::string str, bool bContinue)
+void GameManager::PrintSystemMessage(std::string str, bool bIsErrorMessage)
 {
-	static int line = 12;
-	if (bContinue == false)
+	if (bIsErrorMessage == true)
 	{
-		line = 12;
-		SetConsoleCursorAbsoluteCoordinate(34, line++);
+		SetConsoleCursorAbsoluteCoordinate(34, 13);
 		std::cout << "│                                                         │";
-		SetConsoleCursorAbsoluteCoordinate(34, line);
-		std::cout << "│                                                         │";
-		line = 12;
+		SetConsoleCursorAbsoluteCoordinate(38, 13);
+		std::cout << str;
 	}
-	SetConsoleCursorAbsoluteCoordinate(38, line++);
-	std::cout << str;
+	else
+	{
+		SetConsoleCursorAbsoluteCoordinate(34, 12);
+		std::cout << "│                                                         │";
+		SetConsoleCursorAbsoluteCoordinate(34, 13);
+		std::cout << "│                                                         │";
+		SetConsoleCursorAbsoluteCoordinate(38, 12);
+		std::cout << str;
+	}	
 }
 
 void GameManager::PrintBoardCharByCoordinate(int x, int y)
@@ -402,31 +406,38 @@ bool GameManager::CheckGameOver()
 	final_stones.push_back({ cursor.X, cursor.Y });
 	count = 1;
 	posCol = cursor.Y + 1;
-	while (posCol < BOARD_SIZE) {
-		if (board[cursor.X][posCol] == color) {
+	while (posCol < BOARD_SIZE) 
+	{
+		if (board[cursor.X][posCol] == color) 
+		{
 			final_stones.push_back({ cursor.X, posCol });
 			count++;
 			posCol++;
 		}
-		else {
+		else 
+		{
 			break;
 		}
 	}
 
 	posCol = cursor.Y - 1;
-	while (posCol >= 0) {
-		if (board[cursor.X][posCol] == color) {
+	while (posCol >= 0) 
+	{
+		if (board[cursor.X][posCol] == color) 
+		{
 			final_stones.push_back({ cursor.X, posCol });
 			count++;
 			posCol--;
 		}
-		else {
+		else 
+		{
 			break;
 		}
 	}
 
 	//측정된 점수 반영 
-	if (count >= 5) { //프리룰인지 체크해야함(추후 구현)
+	if (currentRule == eRules::FREE && count == 5) 
+	{
 		return true;
 	}
 
@@ -435,31 +446,38 @@ bool GameManager::CheckGameOver()
 	final_stones.push_back({ cursor.X, cursor.Y });
 	count = 1;
 	posRow = cursor.X + 1;
-	while (posRow < BOARD_SIZE) {
-		if (board[posRow][cursor.Y] == color) {
+	while (posRow < BOARD_SIZE) 
+	{
+		if (board[posRow][cursor.Y] == color)
+		{
 			final_stones.push_back({ posRow, cursor.Y });
 			count++;
 			posRow++;
 		}
-		else {
+		else 
+		{
 			break;
 		}
 	}
 
 	posRow = cursor.X - 1;
-	while (posRow >= 0) {
-		if (board[posRow][cursor.Y] == color) {
+	while (posRow >= 0) 
+	{
+		if (board[posRow][cursor.Y] == color) 
+		{
 			final_stones.push_back({ posRow, cursor.Y });
 			count++;
 			posRow--;
 		}
-		else {
+		else 
+		{
 			break;
 		}
 	}
 
 	//측정된 점수 반영 
-	if (count >= 5) {
+	if (currentRule == eRules::FREE && count == 5)
+	{
 		return true;
 	}
 
@@ -469,34 +487,41 @@ bool GameManager::CheckGameOver()
 	count = 1;
 	posRow = cursor.X + 1;
 	posCol = cursor.Y + 1;
-	while (posCol < BOARD_SIZE && posRow < BOARD_SIZE) {
-		if (board[posRow][posCol] == color) {
+	while (posCol < BOARD_SIZE && posRow < BOARD_SIZE) 
+	{
+		if (board[posRow][posCol] == color) 
+		{
 			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol++;
 			posRow++;
 		}
-		else {
+		else 
+		{
 			break;
 		}
 	}
 
 	posRow = cursor.X - 1;
 	posCol = cursor.Y - 1;
-	while (posCol >= 0 && posRow >= 0) {
-		if (board[posRow][posCol] == color) {
+	while (posCol >= 0 && posRow >= 0) 
+	{
+		if (board[posRow][posCol] == color) 
+		{
 			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol--;
 			posRow--;
 		}
-		else {
+		else 
+		{
 			break;
 		}
 	}
 
 	//측정된 점수 반영 
-	if (count >= 5) {
+	if (currentRule == eRules::FREE && count == 5)
+	{
 		return true;
 	}
 
@@ -506,34 +531,41 @@ bool GameManager::CheckGameOver()
 	count = 1;
 	posRow = cursor.X - 1;
 	posCol = cursor.Y + 1;
-	while (posCol < BOARD_SIZE && posRow >= 0) {
-		if (board[posRow][posCol] == color) {
+	while (posCol < BOARD_SIZE && posRow >= 0) 
+	{
+		if (board[posRow][posCol] == color) 
+		{
 			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol++;
 			posRow--;
 		}
-		else {
+		else 
+		{
 			break;
 		}
 	}
 
 	posRow = cursor.X + 1;
 	posCol = cursor.Y - 1;
-	while (posCol >= 0 && posRow < BOARD_SIZE) {
-		if (board[posRow][posCol] == color) {
+	while (posCol >= 0 && posRow < BOARD_SIZE) 
+	{
+		if (board[posRow][posCol] == color) 
+		{
 			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol--;
 			posRow++;
 		}
-		else {
+		else 
+		{
 			break;
 		}
 	}
 
 	//측정된 점수 반영 
-	if (count >= 5) {
+	if (currentRule == eRules::FREE && count == 5)
+	{
 		return true;
 	}
 

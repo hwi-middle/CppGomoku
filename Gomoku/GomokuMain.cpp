@@ -3,6 +3,11 @@
 
 int main(void)
 {
+	CONSOLE_CURSOR_INFO cursorInfo = { 0, };
+	cursorInfo.dwSize = 1;
+	cursorInfo.bVisible = FALSE;
+	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+
 	system("mode con cols=100 lines=30 | title Gomoku");
 	while (true)
 	{
