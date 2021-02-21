@@ -32,6 +32,7 @@ int main(void)
 			assert(false);
 			break;
 		}
+		delete gameManager;
 	}
 	return 0;
 }

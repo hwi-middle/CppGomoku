@@ -6,7 +6,7 @@
 #include "Gomoku.h"
 #include "GameManager.h"
 
-GameManager::GameManager(eRules rule) :bGameOver(false), bRefreshNeeded(true), cursor({ 0,0 }), turn(eTurns::BLACK), currentRule(rule)
+GameManager::GameManager(eRules rule) :bGameOver(false), bRefreshNeeded(true), cursor({ 0,0 }), lastPlaced({ -1,-1 }), turn(eTurns::BLACK), currentRule(rule)
 {
 	for (int i = 0; i < 15; i++)
 	{
@@ -225,7 +225,7 @@ void GameManager::PrintSystemMessage(std::string str, bool bIsErrorMessage)
 		std::cout << "│                                                         │";
 		SetConsoleCursorAbsoluteCoordinate(38, 12);
 		std::cout << str;
-	}	
+	}
 }
 
 void GameManager::PrintBoardCharByCoordinate(int x, int y)
@@ -333,16 +333,18 @@ void GameManager::SetAndPrintBoardCursor(eInputKeys key)
 		cursor.Y = 0;
 		bRefreshNeeded = false;
 	}
-
+	if (prev.X == lastPlaced.X && prev.Y == lastPlaced.Y)
+	{
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);
+	}
 	PrintBoardCharByCoordinate(prev.X, prev.Y);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
 	PrintBoardCharByCoordinate(cursor.X, cursor.Y);
 }
 
 ePlaceErrorCodes GameManager::PlaceStone()
 {
-	static std::pair<int, int> prev;
-
 	switch (board[cursor.X][cursor.Y])
 	{
 	case eStones::NOT_PLACEABLE:
@@ -358,6 +360,24 @@ ePlaceErrorCodes GameManager::PlaceStone()
 		break;
 	}
 
+	if (lastPlaced.X != -1)
+	{
+		SetConsoleCursorByBoardCoordinate(lastPlaced.X, lastPlaced.Y);
+		switch (board[lastPlaced.X][lastPlaced.Y])
+		{
+		case eStones::BLACK:
+			std::cout << "○";
+			break;
+		case eStones::WHITE:
+			std::cout << "●";
+			break;
+		default:
+			std::cout << lastPlaced.X;
+			assert(0);
+			break;
+		}
+	}
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);
 	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
 	switch (turn)
 	{
@@ -377,7 +397,8 @@ ePlaceErrorCodes GameManager::PlaceStone()
 		assert(0);
 		break;
 	}
-	//PrintSystemMessage();
+	lastPlaced = { cursor.X, cursor.Y };
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
 	return ePlaceErrorCodes::SUCCESS;
 }
@@ -406,37 +427,37 @@ bool GameManager::CheckGameOver()
 	final_stones.push_back({ cursor.X, cursor.Y });
 	count = 1;
 	posCol = cursor.Y + 1;
-	while (posCol < BOARD_SIZE) 
+	while (posCol < BOARD_SIZE)
 	{
-		if (board[cursor.X][posCol] == color) 
+		if (board[cursor.X][posCol] == color)
 		{
 			final_stones.push_back({ cursor.X, posCol });
 			count++;
 			posCol++;
 		}
-		else 
+		else
 		{
 			break;
 		}
 	}
 
 	posCol = cursor.Y - 1;
-	while (posCol >= 0) 
+	while (posCol >= 0)
 	{
-		if (board[cursor.X][posCol] == color) 
+		if (board[cursor.X][posCol] == color)
 		{
 			final_stones.push_back({ cursor.X, posCol });
 			count++;
 			posCol--;
 		}
-		else 
+		else
 		{
 			break;
 		}
 	}
 
 	//측정된 점수 반영 
-	if (currentRule == eRules::FREE && count == 5) 
+	if (currentRule == eRules::FREE && count == 5)
 	{
 		return true;
 	}
@@ -446,7 +467,7 @@ bool GameManager::CheckGameOver()
 	final_stones.push_back({ cursor.X, cursor.Y });
 	count = 1;
 	posRow = cursor.X + 1;
-	while (posRow < BOARD_SIZE) 
+	while (posRow < BOARD_SIZE)
 	{
 		if (board[posRow][cursor.Y] == color)
 		{
@@ -454,22 +475,22 @@ bool GameManager::CheckGameOver()
 			count++;
 			posRow++;
 		}
-		else 
+		else
 		{
 			break;
 		}
 	}
 
 	posRow = cursor.X - 1;
-	while (posRow >= 0) 
+	while (posRow >= 0)
 	{
-		if (board[posRow][cursor.Y] == color) 
+		if (board[posRow][cursor.Y] == color)
 		{
 			final_stones.push_back({ posRow, cursor.Y });
 			count++;
 			posRow--;
 		}
-		else 
+		else
 		{
 			break;
 		}
@@ -487,16 +508,16 @@ bool GameManager::CheckGameOver()
 	count = 1;
 	posRow = cursor.X + 1;
 	posCol = cursor.Y + 1;
-	while (posCol < BOARD_SIZE && posRow < BOARD_SIZE) 
+	while (posCol < BOARD_SIZE && posRow < BOARD_SIZE)
 	{
-		if (board[posRow][posCol] == color) 
+		if (board[posRow][posCol] == color)
 		{
 			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol++;
 			posRow++;
 		}
-		else 
+		else
 		{
 			break;
 		}
@@ -504,16 +525,16 @@ bool GameManager::CheckGameOver()
 
 	posRow = cursor.X - 1;
 	posCol = cursor.Y - 1;
-	while (posCol >= 0 && posRow >= 0) 
+	while (posCol >= 0 && posRow >= 0)
 	{
-		if (board[posRow][posCol] == color) 
+		if (board[posRow][posCol] == color)
 		{
 			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol--;
 			posRow--;
 		}
-		else 
+		else
 		{
 			break;
 		}
@@ -531,16 +552,16 @@ bool GameManager::CheckGameOver()
 	count = 1;
 	posRow = cursor.X - 1;
 	posCol = cursor.Y + 1;
-	while (posCol < BOARD_SIZE && posRow >= 0) 
+	while (posCol < BOARD_SIZE && posRow >= 0)
 	{
-		if (board[posRow][posCol] == color) 
+		if (board[posRow][posCol] == color)
 		{
 			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol++;
 			posRow--;
 		}
-		else 
+		else
 		{
 			break;
 		}
@@ -548,16 +569,16 @@ bool GameManager::CheckGameOver()
 
 	posRow = cursor.X + 1;
 	posCol = cursor.Y - 1;
-	while (posCol >= 0 && posRow < BOARD_SIZE) 
+	while (posCol >= 0 && posRow < BOARD_SIZE)
 	{
-		if (board[posRow][posCol] == color) 
+		if (board[posRow][posCol] == color)
 		{
 			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol--;
 			posRow++;
 		}
-		else 
+		else
 		{
 			break;
 		}

@@ -10,6 +10,7 @@ private:
 	eTurns turn;
 	eRules currentRule;
 	std::pair<int, int> cursor;
+	std::pair<int, int> lastPlaced;
 	std::vector<std::pair<int, int>> final_stones;
 	bool bGameOver;
 	bool bRefreshNeeded;
