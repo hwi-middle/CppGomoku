@@ -104,23 +104,25 @@ void GameManager::StartGame(void)
 	DrawBoard();
 	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
 	PrintBoardCharByCoordinate(cursor.X, cursor.Y);
-	SetConsoleCursorToSystemMessageZone();
+	bool bPrintTurn = true;
 
 	while (bGameOver == false)
 	{
-		switch (turn)
+		if(bPrintTurn == true)
 		{
-		case eTurns::BLACK:
-			std::cout << "흑돌";
-			break;
-		case eTurns::WHITE:
-			std::cout << "백돌";
-			break;
-		default:
-			assert(0);
-			break;
+			switch (turn)
+			{
+			case eTurns::BLACK:
+				PrintSystemMessage("흑돌의 차례입니다.", false);
+				break;
+			case eTurns::WHITE:
+				PrintSystemMessage("백돌의 차례입니다.", false);
+				break;
+			default:
+				assert(0);
+				break;
+			}
 		}
-		std::cout << "의 차례입니다.\n";
 
 		bool tryPlace = false;
 		eInputKeys key = GetInputKey();
@@ -141,22 +143,23 @@ void GameManager::StartGame(void)
 
 		if (tryPlace == true)
 		{
-			SetConsoleCursorToSystemMessageZone();
+			bPrintTurn = false;
 			switch (success)
 			{
 			case ePlaceErrorCodes::SUCCESS:
+				bPrintTurn = true;
 				break;
 			case ePlaceErrorCodes::FAIL_BROKE_CUR_RULE:
-				std::cout << "오류: 룰에 의해 착수가 불가능한 곳 입니다.\n";
+				PrintSystemMessage("오류: 룰에 의해 착수가 불가능한 곳 입니다.\n", true);
 				break;
 			case ePlaceErrorCodes::FAIL_ALREADY_EXISTS:
 				switch (board[cursor.X][cursor.Y])
 				{
 				case eStones::BLACK:
-					std::cout << "오류: 이미 흑돌이 놓여져 있습니다.\n";
+					PrintSystemMessage("오류: 이미 흑돌이 놓여져 있습니다.\n", true);
 					break;
 				case eStones::WHITE:
-					std::cout << "오류: 이미 백돌이 놓여져 있습니다.\n";
+					PrintSystemMessage("오류: 이미 백돌이 놓여져 있습니다.\n", true);
 					break;
 				default:
 					break;
@@ -168,26 +171,31 @@ void GameManager::StartGame(void)
 			}
 		}
 	}
-
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
+	cursor = { -1,-1 };
+	for (auto co : final_stones)
+	{
+		SetConsoleCursorByBoardCoordinate(co.X, co.Y);
+		PrintBoardCharByCoordinate(co.X, co.Y);
+	}
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
+	
 	switch (turn)
 	{
 	case eTurns::BLACK:
 		board[cursor.X][cursor.Y] = eStones::WHITE;
-		cursor = { -1,-1 };
-		DrawBoard();
-		std::cout << "흰돌";
+		PrintSystemMessage("백돌이 승리하였습니다!", false);
 		break;
 	case eTurns::WHITE:
 		board[cursor.X][cursor.Y] = eStones::BLACK;
-		cursor = { -1,-1 };
-		DrawBoard();
-		std::cout << "검은돌";
+		PrintSystemMessage("흑돌이 승리하였습니다!", false);
 		break;
 	default:
 		assert(0);
 		break;
 	}
-	std::cout << "이 승리하였습니다!\n";
+	Sleep(1000);
+	PrintSystemMessage("", true);
 	system("pause");
 }
 
@@ -200,26 +208,24 @@ void GameManager::SetConsoleCursorAbsoluteCoordinate(int x, int y)
 void GameManager::SetConsoleCursorByBoardCoordinate(int x, int y)
 {
 	//API는 x와 y가 반대
-	COORD cur = { 2 + cursor.Y * 2, 1 + cursor.X };
+	COORD cur = { 2 + y * 2, 1 + x };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
 }
 
-void GameManager::SetConsoleCursorToSystemMessageZone()
+void GameManager::PrintSystemMessage(std::string str, bool bContinue)
 {
-	//API는 x와 y가 반대
-	COORD cur = { 0, 16 };
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
-
-	for (int i = 0; i < 5; i++) 
+	static int line = 12;
+	if (bContinue == false)
 	{
-		for (int j = 0; j < 80; j++)
-		{
-			std::cout << " ";
-		}
-		std::cout << "\n";
+		line = 12;
+		SetConsoleCursorAbsoluteCoordinate(34, line++);
+		std::cout << "│                                                         │";
+		SetConsoleCursorAbsoluteCoordinate(34, line);
+		std::cout << "│                                                         │";
+		line = 12;
 	}
-
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << str;
 }
 
 void GameManager::PrintBoardCharByCoordinate(int x, int y)
@@ -287,7 +293,7 @@ void GameManager::PrintBoardCharByCoordinate(int x, int y)
 void GameManager::SetAndPrintBoardCursor(eInputKeys key)
 {
 	std::pair<int, int> prev = { cursor.X, cursor.Y };
-	
+
 	SetConsoleCursorByBoardCoordinate(prev.X, prev.Y);
 	switch (key)
 	{
@@ -327,16 +333,18 @@ void GameManager::SetAndPrintBoardCursor(eInputKeys key)
 		cursor.Y = 0;
 		bRefreshNeeded = false;
 	}
-	
+
 	PrintBoardCharByCoordinate(prev.X, prev.Y);
-	SetConsoleCursorToSystemMessageZone();
+	//PrintSystemMessage();
 	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
 	PrintBoardCharByCoordinate(cursor.X, cursor.Y);
-	SetConsoleCursorToSystemMessageZone();
+	//PrintSystemMessage();
 }
 
 ePlaceErrorCodes GameManager::PlaceStone()
 {
+	static std::pair<int, int> prev;
+
 	switch (board[cursor.X][cursor.Y])
 	{
 	case eStones::NOT_PLACEABLE:
@@ -370,7 +378,7 @@ ePlaceErrorCodes GameManager::PlaceStone()
 		assert(0);
 		break;
 	}
-	SetConsoleCursorToSystemMessageZone();
+	//PrintSystemMessage();
 
 	return ePlaceErrorCodes::SUCCESS;
 }
@@ -396,10 +404,12 @@ bool GameManager::CheckGameOver()
 	}
 
 	//가로 점수 확인 
+	final_stones.push_back({ cursor.X, cursor.Y });
 	count = 1;
-	posCol = cursor.X + 1;
+	posCol = cursor.Y + 1;
 	while (posCol < BOARD_SIZE) {
 		if (board[cursor.X][posCol] == color) {
+			final_stones.push_back({ cursor.X, posCol });
 			count++;
 			posCol++;
 		}
@@ -408,9 +418,10 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	posCol = cursor.X - 1;
+	posCol = cursor.Y - 1;
 	while (posCol >= 0) {
 		if (board[cursor.X][posCol] == color) {
+			final_stones.push_back({ cursor.X, posCol });
 			count++;
 			posCol--;
 		}
@@ -425,10 +436,13 @@ bool GameManager::CheckGameOver()
 	}
 
 	//세로 점수 확인 
+	final_stones.clear();
+	final_stones.push_back({ cursor.X, cursor.Y });
 	count = 1;
-	posRow = cursor.Y + 1;
+	posRow = cursor.X + 1;
 	while (posRow < BOARD_SIZE) {
 		if (board[posRow][cursor.Y] == color) {
+			final_stones.push_back({ posRow, cursor.Y });
 			count++;
 			posRow++;
 		}
@@ -437,9 +451,10 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	posRow = cursor.Y - 1;
+	posRow = cursor.X - 1;
 	while (posRow >= 0) {
 		if (board[posRow][cursor.Y] == color) {
+			final_stones.push_back({ posRow, cursor.Y });
 			count++;
 			posRow--;
 		}
@@ -454,11 +469,14 @@ bool GameManager::CheckGameOver()
 	}
 
 	//좌상향 대각선 점수 확인 
+	final_stones.clear();
+	final_stones.push_back({ cursor.X, cursor.Y });
 	count = 1;
 	posRow = cursor.X + 1;
 	posCol = cursor.Y + 1;
 	while (posCol < BOARD_SIZE && posRow < BOARD_SIZE) {
 		if (board[posRow][posCol] == color) {
+			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol++;
 			posRow++;
@@ -472,6 +490,7 @@ bool GameManager::CheckGameOver()
 	posCol = cursor.Y - 1;
 	while (posCol >= 0 && posRow >= 0) {
 		if (board[posRow][posCol] == color) {
+			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol--;
 			posRow--;
@@ -487,11 +506,14 @@ bool GameManager::CheckGameOver()
 	}
 
 	//우상향 대각선 점수 확인 
+	final_stones.clear();
+	final_stones.push_back({ cursor.X, cursor.Y });
 	count = 1;
 	posRow = cursor.X - 1;
 	posCol = cursor.Y + 1;
 	while (posCol < BOARD_SIZE && posRow >= 0) {
 		if (board[posRow][posCol] == color) {
+			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol++;
 			posRow--;
@@ -505,6 +527,7 @@ bool GameManager::CheckGameOver()
 	posCol = cursor.Y - 1;
 	while (posCol >= 0 && posRow < BOARD_SIZE) {
 		if (board[posRow][posCol] == color) {
+			final_stones.push_back({ posRow, posCol });
 			count++;
 			posCol--;
 			posRow++;
@@ -519,6 +542,7 @@ bool GameManager::CheckGameOver()
 		return true;
 	}
 
+	final_stones.clear();
 	return false;
 }
 
@@ -541,9 +565,9 @@ void GameManager::DrawBoard()
 		}
 		std::cout << "\n";
 	}
-	
+
 	int w = 30;
-	int h = 9;
+	int h = 10;
 	for (int i = 1; i <= h; i++)
 	{
 		SetConsoleCursorAbsoluteCoordinate(34, i - 1);
@@ -589,10 +613,10 @@ void GameManager::DrawBoard()
 		std::cout << "\n";
 	}
 
-	h = 7;
+	h = 6;
 	for (int i = 1; i <= h; i++)
 	{
-		SetConsoleCursorAbsoluteCoordinate(34, i + 8);
+		SetConsoleCursorAbsoluteCoordinate(34, i + 9);
 		for (int j = 1; j <= w; j++)
 		{
 			if (i == 1 && j == 1)
@@ -642,7 +666,9 @@ void GameManager::DrawBoard()
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
 	std::cout << "○ : 흑돌이 놓인 곳";
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
-	std::cout << "● : 백돌이 놓인 곳";	
+	std::cout << "● : 백돌이 놓인 곳";
+	SetConsoleCursorAbsoluteCoordinate(38, line++);
+	std::cout << "ⓧ : 금수(놓을 수 없음)";
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
 	std::cout << "⊙ : 커서(자신이 놓을 곳)";
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
@@ -650,12 +676,9 @@ void GameManager::DrawBoard()
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
 	std::cout << "ENTER : 착수(돌 놓기)";
 
-	line = 9;
+	line = 10;
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
 	std::cout << " M E S S A G E ";
-	line++;
-	SetConsoleCursorAbsoluteCoordinate(38, line++);
-	std::cout << "여기에는 시스템 메시지가 표시되어야 합니다.";
 }
 
 eInputKeys GameManager::GetInputKey()

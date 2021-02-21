@@ -16,7 +16,7 @@ private:
 	void DrawBoard();
 	void SetConsoleCursorAbsoluteCoordinate(int x, int y);
 	void SetConsoleCursorByBoardCoordinate(int x, int y);
-	void SetConsoleCursorToSystemMessageZone();
+	void PrintSystemMessage(std::string str, bool bContinue);
 	void PrintBoardCharByCoordinate(int x, int y);
 	void SetAndPrintBoardCursor(eInputKeys key);
 	ePlaceErrorCodes PlaceStone();
