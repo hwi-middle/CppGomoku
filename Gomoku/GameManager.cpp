@@ -105,10 +105,11 @@ void GameManager::StartGame(void)
 	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
 	PrintBoardCharByCoordinate(cursor.X, cursor.Y);
 	bool bPrintTurn = true;
+	ePlaceErrorCodes prevErrorCode = ePlaceErrorCodes::SUCCESS;
 
 	while (bGameOver == false)
 	{
-		if(bPrintTurn == true)
+		if (bPrintTurn == true)
 		{
 			switch (turn)
 			{
@@ -126,7 +127,7 @@ void GameManager::StartGame(void)
 
 		bool tryPlace = false;
 		eInputKeys key = GetInputKey();
-		ePlaceErrorCodes success = ePlaceErrorCodes::SUCCESS;
+		ePlaceErrorCodes errorCode = ePlaceErrorCodes::SUCCESS;
 		switch (key)
 		{
 		case eInputKeys::ARROW_UP:
@@ -137,38 +138,33 @@ void GameManager::StartGame(void)
 			break;
 		case eInputKeys::SPACE:
 			tryPlace = true;
-			success = PlaceStone();
+			errorCode = PlaceStone();
 			break;
 		}
 
 		if (tryPlace == true)
 		{
 			bPrintTurn = false;
-			switch (success)
+			if (errorCode == ePlaceErrorCodes::SUCCESS)
 			{
-			case ePlaceErrorCodes::SUCCESS:
 				bPrintTurn = true;
-				break;
-			case ePlaceErrorCodes::FAIL_BROKE_CUR_RULE:
-				PrintSystemMessage("오류: 룰에 의해 착수가 불가능한 곳 입니다.\n", true);
-				break;
-			case ePlaceErrorCodes::FAIL_ALREADY_EXISTS:
-				switch (board[cursor.X][cursor.Y])
-				{
-				case eStones::BLACK:
-					PrintSystemMessage("오류: 이미 흑돌이 놓여져 있습니다.\n", true);
-					break;
-				case eStones::WHITE:
-					PrintSystemMessage("오류: 이미 백돌이 놓여져 있습니다.\n", true);
-					break;
-				default:
-					break;
-				}
-				break;
-			default:
-				assert(0);
-				break;
 			}
+			else if (prevErrorCode != errorCode)
+			{
+				if (errorCode == ePlaceErrorCodes::FAIL_BROKE_CUR_RULE)
+				{
+					PrintSystemMessage("오류: 룰에 의해 착수가 불가능한 곳 입니다.\n", true);
+				}
+				else if (errorCode == ePlaceErrorCodes::FAIL_BLACK_STONE_EXISTS)
+				{
+					PrintSystemMessage("오류: 이미 흑돌이 놓여져 있습니다.\n", true);
+				}
+				else if (errorCode == ePlaceErrorCodes::FAIL_WHITE_STONE_EXISTS)
+				{
+					PrintSystemMessage("오류: 이미 백돌이 놓여져 있습니다.\n", true);
+				}
+			}
+			prevErrorCode = errorCode;
 		}
 	}
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
@@ -179,7 +175,7 @@ void GameManager::StartGame(void)
 		PrintBoardCharByCoordinate(co.X, co.Y);
 	}
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
-	
+
 	switch (turn)
 	{
 	case eTurns::BLACK:
@@ -335,10 +331,8 @@ void GameManager::SetAndPrintBoardCursor(eInputKeys key)
 	}
 
 	PrintBoardCharByCoordinate(prev.X, prev.Y);
-	//PrintSystemMessage();
 	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
 	PrintBoardCharByCoordinate(cursor.X, cursor.Y);
-	//PrintSystemMessage();
 }
 
 ePlaceErrorCodes GameManager::PlaceStone()
@@ -350,8 +344,9 @@ ePlaceErrorCodes GameManager::PlaceStone()
 	case eStones::NOT_PLACEABLE:
 		return ePlaceErrorCodes::FAIL_BROKE_CUR_RULE;
 	case eStones::BLACK:
+		return ePlaceErrorCodes::FAIL_BLACK_STONE_EXISTS;
 	case eStones::WHITE:
-		return ePlaceErrorCodes::FAIL_ALREADY_EXISTS;
+		return ePlaceErrorCodes::FAIL_WHITE_STONE_EXISTS;
 	case eStones::NONE:
 		break;
 	default:
@@ -674,7 +669,7 @@ void GameManager::DrawBoard()
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
 	std::cout << "←↑↓→ : 커서 이동";
 	SetConsoleCursorAbsoluteCoordinate(38, line++);
-	std::cout << "ENTER : 착수(돌 놓기)";
+	std::cout << "SPACE : 착수(돌 놓기)";
 
 	line = 10;
 	SetConsoleCursorAbsoluteCoordinate(38, line++);

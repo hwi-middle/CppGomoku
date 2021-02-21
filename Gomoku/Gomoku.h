@@ -22,7 +22,8 @@ enum class ePlaceErrorCodes
 {
 	SUCCESS,
 	FAIL_BROKE_CUR_RULE,
-	FAIL_ALREADY_EXISTS
+	FAIL_BLACK_STONE_EXISTS,
+	FAIL_WHITE_STONE_EXISTS
 };
 
 enum class eStones	//각 칸에 올 수 있는 돌
