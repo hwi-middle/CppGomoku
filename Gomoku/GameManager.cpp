@@ -276,6 +276,10 @@ void GameManager::StartGame(void)
 		break;
 	case eTurns::WHITE:
 		board[cursor.X][cursor.Y] = eStones::BLACK;
+		if (currentRule == eRules::RENJU)
+		{
+			PrintForbiddenMoves();	//금수 표시를 없앰
+		}
 		PrintSystemMessage("흑돌이 승리하였습니다!", false);
 		break;
 	default:
