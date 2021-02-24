@@ -14,6 +14,7 @@ private:
 	std::vector<std::pair<int, int>> final_stones;
 	bool bGameOver;
 	bool bRefreshNeeded;
+	bool SelectRule();
 	void DrawBoard();
 	void SetConsoleCursorAbsoluteCoordinate(int x, int y);
 	void SetConsoleCursorByBoardCoordinate(int x, int y);
@@ -21,10 +22,12 @@ private:
 	void PrintBoardCharByCoordinate(int x, int y);
 	void SetAndPrintBoardCursor(eInputKeys key);
 	ePlaceErrorCodes PlaceStone();
+	bool CheckMeetRules(int count);
 	bool CheckGameOver();
+	void CheckRenju();
 	eInputKeys GetInputKey();
 public:
-	GameManager(eRules rule);
+	GameManager();
 	eTitleActions ShowTitle(void);
 	void ShowHelp(void);
 	void StartGame(void);

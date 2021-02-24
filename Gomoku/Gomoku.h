@@ -8,7 +8,6 @@
 enum class eRules	//진행중인 게임의 룰
 {
 	FREE,
-	STANDARD,
 	RENJU
 };
 

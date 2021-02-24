@@ -6,7 +6,7 @@
 #include "Gomoku.h"
 #include "GameManager.h"
 
-GameManager::GameManager(eRules rule) :bGameOver(false), bRefreshNeeded(true), cursor({ 0,0 }), lastPlaced({ -1,-1 }), turn(eTurns::BLACK), currentRule(rule)
+GameManager::GameManager() :bGameOver(false), bRefreshNeeded(true), cursor({ 0,0 }), lastPlaced({ -1,-1 }), turn(eTurns::BLACK), currentRule(eRules::FREE)
 {
 	for (int i = 0; i < 15; i++)
 	{
@@ -14,6 +14,87 @@ GameManager::GameManager(eRules rule) :bGameOver(false), bRefreshNeeded(true), c
 		{
 			board[i][j] = eStones::NONE;
 		}
+	}
+}
+
+bool GameManager::SelectRule()
+{
+	system("cls");
+
+	int ruleCursor = 0;
+
+	while (true)
+	{
+		std::cout << "\n※상하 방향키로 이동, Enter키로 선택\n\n";
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (ruleCursor == i)
+			{
+				std::cout << ">>";
+			}
+			else
+			{
+				std::cout << "  ";
+			}
+
+			switch (i)
+			{
+			case 0:
+				std::cout << "  자 유 룰  ";
+				break;
+			case 1:
+				std::cout << "  렌 주 룰  ";
+				break;
+			case 2:
+				std::cout << "  뒤 로 가 기  ";
+				break;
+			default:
+				assert(false);
+				break;
+			}
+
+			if (ruleCursor == i)
+			{
+				std::cout << "<<";
+			}
+			std::cout << "\n";
+		}
+
+		eInputKeys key = GetInputKey();
+		switch (key)
+		{
+		case eInputKeys::ARROW_UP:
+			ruleCursor--;
+			if (ruleCursor < 0) ruleCursor = 0;
+			break;
+		case eInputKeys::ARROW_DOWN:
+			ruleCursor++;
+			if (ruleCursor > 2) ruleCursor = 2;
+			break;
+		case eInputKeys::ENTER:
+			if (ruleCursor == 0)
+			{
+				std::cout << "\n\n자유룰로 게임을 시작합니다.";
+				Sleep(1000);
+				currentRule = eRules::FREE;
+				return true;
+			}
+			else if (ruleCursor == 1)
+			{
+				std::cout << "\n\n렌주룰로 게임을 시작합니다.";
+				Sleep(1000);
+				currentRule = eRules::RENJU;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		default:
+			break;
+		}
+		system("cls");
 	}
 }
 
@@ -101,6 +182,11 @@ void GameManager::ShowHelp(void)
 
 void GameManager::StartGame(void)
 {
+	if (SelectRule() == false)
+	{
+		return;
+	} 
+
 	DrawBoard();
 	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
 	PrintBoardCharByCoordinate(cursor.X, cursor.Y);
@@ -403,6 +489,26 @@ ePlaceErrorCodes GameManager::PlaceStone()
 	return ePlaceErrorCodes::SUCCESS;
 }
 
+bool GameManager::CheckMeetRules(int count)
+{
+	if (currentRule == eRules::FREE && count == 5)
+	{
+		return true;
+	}
+	else if (currentRule == eRules::RENJU)
+	{
+		if (turn == eTurns::WHITE && count >= 5)
+		{
+			return true;
+		}
+		else if (turn == eTurns::BLACK && count == 5)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool GameManager::CheckGameOver()
 {
 	int count;
@@ -456,8 +562,8 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	//측정된 점수 반영 
-	if (currentRule == eRules::FREE && count == 5)
+	//승리조건을 만족하는지 판단
+	if (CheckMeetRules(count) == true)
 	{
 		return true;
 	}
@@ -496,8 +602,8 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	//측정된 점수 반영 
-	if (currentRule == eRules::FREE && count == 5)
+	//승리조건을 만족하는지 판단
+	if (CheckMeetRules(count) == true)
 	{
 		return true;
 	}
@@ -540,8 +646,8 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	//측정된 점수 반영 
-	if (currentRule == eRules::FREE && count == 5)
+	//승리조건을 만족하는지 판단
+	if (CheckMeetRules(count) == true)
 	{
 		return true;
 	}
@@ -584,14 +690,19 @@ bool GameManager::CheckGameOver()
 		}
 	}
 
-	//측정된 점수 반영 
-	if (currentRule == eRules::FREE && count == 5)
+	//승리조건을 만족하는지 판단
+	if (CheckMeetRules(count) == true)
 	{
 		return true;
 	}
 
 	final_stones.clear();
 	return false;
+}
+
+void GameManager::CheckRenju()
+{
+
 }
 
 void GameManager::DrawBoard()
