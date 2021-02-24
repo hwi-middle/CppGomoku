@@ -8,11 +8,11 @@
 
 GameManager::GameManager() :bGameOver(false), bRefreshNeeded(true), cursor({ 0,0 }), lastPlaced({ -1,-1 }), turn(eTurns::BLACK), currentRule(eRules::FREE)
 {
-	for (int i = 0; i < 15; i++)
+	for (int x = 0; x < BOARD_SIZE; x++)
 	{
-		for (int j = 0; j < 15; j++)
+		for (int y = 0; y < BOARD_SIZE; y++)
 		{
-			board[i][j] = eStones::NONE;
+			board[x][y] = eStones::NONE;
 		}
 	}
 }
@@ -510,20 +510,20 @@ void GameManager::PrintForbiddenMoves()
 	if (turn == eTurns::BLACK)
 	{
 		forbiddenMoves.clear();
-		for (int i = 0; i < 15; i++)
+		for (int x = 0; x < BOARD_SIZE; x++)
 		{
-			for (int j = 0; j < 15; j++)
+			for (int y = 0; y < BOARD_SIZE; y++)
 			{
-				if (board[i][j] == eStones::NONE || board[i][j] == eStones::FORBIDDEN)
+				if (board[x][y] == eStones::NONE || board[x][y] == eStones::FORBIDDEN)
 				{
-					for (int k = 0; k < 4; k++)
+					for (int i = 0; i < 4; i++)
 					{
-						if (CountContinuousStones(i, j, dir[k]) > 5)
+						if (CountContinuousStones(x, y, dir[i]) > 5)
 						{
-							board[i][j] = eStones::FORBIDDEN;
-							forbiddenMoves.push_back(std::make_pair(i, j));
-							SetConsoleCursorByBoardCoordinate(i, j);
-							PrintBoardCharByCoordinate(i, j);
+							board[x][y] = eStones::FORBIDDEN;
+							forbiddenMoves.push_back(std::make_pair(x, y));
+							SetConsoleCursorByBoardCoordinate(x, y);
+							PrintBoardCharByCoordinate(x, y);
 						}
 					}
 				}
@@ -752,16 +752,16 @@ void GameManager::DrawBoard()
 {
 	system("cls");
 	std::cout << "  ";
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < BOARD_SIZE; i++)
 	{
 		std::cout << (char)('A' + i) << " ";
 	}
 	std::cout << "\n";
 
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < BOARD_SIZE; i++)
 	{
 		std::cout << (char)('A' + i) << " ";
-		for (int j = 0; j < 15; j++)
+		for (int j = 0; j < BOARD_SIZE; j++)
 		{
 			PrintBoardCharByCoordinate(i, j);
 		}
