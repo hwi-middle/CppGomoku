@@ -38,8 +38,7 @@ enum class eStones	//각 칸에 올 수 있는 돌
 	NONE,
 	BLACK,
 	WHITE,
-	//CURSOR,
-	NOT_PLACEABLE	//일부 룰에 의해 착수 불가한 칸
+	FORBIDDEN	//일부 룰에 의해 착수 불가한 칸
 };
 
 enum class eInputKeys	//유효한 입력 키들

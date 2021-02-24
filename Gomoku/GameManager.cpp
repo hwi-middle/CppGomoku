@@ -210,6 +210,10 @@ void GameManager::StartGame(void)
 				break;
 			}
 		}
+		if (currentRule == eRules::RENJU)
+		{
+			PrintForbiddenMoves();
+		}
 
 		bool tryPlace = false;
 		eInputKeys key = GetInputKey();
@@ -253,9 +257,11 @@ void GameManager::StartGame(void)
 			prevErrorCode = errorCode;
 		}
 	}
+
+	//게임오버
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
 	cursor = { -1,-1 };
-	for (auto co : final_stones)
+	for (auto co : finalStones)
 	{
 		SetConsoleCursorByBoardCoordinate(co.X, co.Y);
 		PrintBoardCharByCoordinate(co.X, co.Y);
@@ -332,9 +338,11 @@ void GameManager::PrintBoardCharByCoordinate(int x, int y)
 		std::cout << "●";
 		return;
 	}
-	else if (board[x][y] == eStones::NOT_PLACEABLE)
+	else if (board[x][y] == eStones::FORBIDDEN && turn == eTurns::BLACK)
 	{
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
 		std::cout << "ⓧ";
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 		return;
 	}
 
@@ -433,8 +441,12 @@ ePlaceErrorCodes GameManager::PlaceStone()
 {
 	switch (board[cursor.X][cursor.Y])
 	{
-	case eStones::NOT_PLACEABLE:
-		return ePlaceErrorCodes::FAIL_BROKE_CUR_RULE;
+	case eStones::FORBIDDEN:
+		if (turn == eTurns::BLACK)
+		{
+			return ePlaceErrorCodes::FAIL_BROKE_CUR_RULE;
+		}
+		break;
 	case eStones::BLACK:
 		return ePlaceErrorCodes::FAIL_BLACK_STONE_EXISTS;
 	case eStones::WHITE:
@@ -484,31 +496,53 @@ ePlaceErrorCodes GameManager::PlaceStone()
 		break;
 	}
 	lastPlaced = { cursor.X, cursor.Y };
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 	return ePlaceErrorCodes::SUCCESS;
 }
 
-void GameManager::CheckForbiddenMoves()
+void GameManager::PrintForbiddenMoves()
 {
-	assert(turn == eTurns::BLACK);
-
+	assert(currentRule == eRules::RENJU);
 	//장수 확인
-	for (int i = 0; i < 15; i++)
-	{
-		for (int j = 0; j < 15; j++)
-		{
-			if (board[i][j] == eStones::NONE)
-			{
+	eDirection dir[] = { eDirection::VERTICAL, eDirection::HORIZONTAL, eDirection::LEFT_UP_DIAGONAL, eDirection::RIGHT_UP_DIAGONAL };
 
+	if (turn == eTurns::BLACK)
+	{
+		forbiddenMoves.clear();
+		for (int i = 0; i < 15; i++)
+		{
+			for (int j = 0; j < 15; j++)
+			{
+				if (board[i][j] == eStones::NONE || board[i][j] == eStones::FORBIDDEN)
+				{
+					for (int k = 0; k < 4; k++)
+					{
+						if (CountContinuousStones(i, j, dir[k]) > 5)
+						{
+							board[i][j] = eStones::FORBIDDEN;
+							forbiddenMoves.push_back(std::make_pair(i, j));
+							SetConsoleCursorByBoardCoordinate(i, j);
+							PrintBoardCharByCoordinate(i, j);
+						}
+					}
+				}
 			}
+		}
+	}
+	else
+	{
+		for (auto move : forbiddenMoves)
+		{
+			SetConsoleCursorByBoardCoordinate(move.X, move.Y);
+			PrintBoardCharByCoordinate(move.X, move.Y);
 		}
 	}
 }
 
 int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 {
-	final_stones.clear();
+	finalStones.clear();
 	std::pair<int, int> pos = { x, y };
 	int count = 1;
 	int posRow;
@@ -531,14 +565,14 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 	switch (dir)
 	{
 	case eDirection::VERTICAL:
-		final_stones.push_back({ pos.X, pos.Y });
+		finalStones.push_back({ pos.X, pos.Y });
 		count = 1;
 		posRow = pos.X + 1;
 		while (posRow < BOARD_SIZE)
 		{
 			if (board[posRow][pos.Y] == color)
 			{
-				final_stones.push_back({ posRow, pos.Y });
+				finalStones.push_back({ posRow, pos.Y });
 				count++;
 				posRow++;
 			}
@@ -553,7 +587,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 		{
 			if (board[posRow][pos.Y] == color)
 			{
-				final_stones.push_back({ posRow, pos.Y });
+				finalStones.push_back({ posRow, pos.Y });
 				count++;
 				posRow--;
 			}
@@ -564,14 +598,14 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 		}
 		break;
 	case eDirection::HORIZONTAL:
-		final_stones.push_back({ pos.X, pos.Y });
+		finalStones.push_back({ pos.X, pos.Y });
 		count = 1;
 		posCol = pos.Y + 1;
 		while (posCol < BOARD_SIZE)
 		{
 			if (board[pos.X][posCol] == color)
 			{
-				final_stones.push_back({ pos.X, posCol });
+				finalStones.push_back({ pos.X, posCol });
 				count++;
 				posCol++;
 			}
@@ -586,7 +620,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 		{
 			if (board[pos.X][posCol] == color)
 			{
-				final_stones.push_back({ pos.X, posCol });
+				finalStones.push_back({ pos.X, posCol });
 				count++;
 				posCol--;
 			}
@@ -597,7 +631,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 		}
 		break;
 	case eDirection::LEFT_UP_DIAGONAL:
-		final_stones.push_back({ pos.X, pos.Y });
+		finalStones.push_back({ pos.X, pos.Y });
 		count = 1;
 		posRow = pos.X + 1;
 		posCol = pos.Y + 1;
@@ -605,7 +639,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 		{
 			if (board[posRow][posCol] == color)
 			{
-				final_stones.push_back({ posRow, posCol });
+				finalStones.push_back({ posRow, posCol });
 				count++;
 				posCol++;
 				posRow++;
@@ -622,7 +656,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 		{
 			if (board[posRow][posCol] == color)
 			{
-				final_stones.push_back({ posRow, posCol });
+				finalStones.push_back({ posRow, posCol });
 				count++;
 				posCol--;
 				posRow--;
@@ -634,7 +668,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 		}
 		break;
 	case eDirection::RIGHT_UP_DIAGONAL:
-		final_stones.push_back({ pos.X, pos.Y });
+		finalStones.push_back({ pos.X, pos.Y });
 		count = 1;
 		posRow = pos.X - 1;
 		posCol = pos.Y + 1;
@@ -642,7 +676,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 		{
 			if (board[posRow][posCol] == color)
 			{
-				final_stones.push_back({ posRow, posCol });
+				finalStones.push_back({ posRow, posCol });
 				count++;
 				posCol++;
 				posRow--;
@@ -659,7 +693,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 		{
 			if (board[posRow][posCol] == color)
 			{
-				final_stones.push_back({ posRow, posCol });
+				finalStones.push_back({ posRow, posCol });
 				count++;
 				posCol--;
 				posRow++;

@@ -11,7 +11,8 @@ private:
 	eRules currentRule;
 	std::pair<int, int> cursor;
 	std::pair<int, int> lastPlaced;
-	std::vector<std::pair<int, int>> final_stones;
+	std::vector<std::pair<int, int>> finalStones;
+	std::vector<std::pair<int, int>> forbiddenMoves;
 	bool bGameOver;
 	bool bRefreshNeeded;
 	bool SelectRule();
@@ -22,7 +23,7 @@ private:
 	void PrintBoardCharByCoordinate(int x, int y);
 	void SetAndPrintBoardCursor(eInputKeys key);
 	ePlaceErrorCodes PlaceStone();
-	void CheckForbiddenMoves();
+	void PrintForbiddenMoves();
 	int CountContinuousStones(int x, int y, eDirection dir);
 	bool CheckMeetRules(int count);
 	bool CheckGameOver();
