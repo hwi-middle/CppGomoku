@@ -16,15 +16,16 @@ private:
 	bool bRefreshNeeded;
 	bool SelectRule();
 	void DrawBoard();
-	void SetConsoleCursorAbsoluteCoordinate(int x, int y);
-	void SetConsoleCursorByBoardCoordinate(int x, int y);
+	void SetConsoleCursorAbsoluteCoordinate(SHORT x, SHORT y);
+	void SetConsoleCursorByBoardCoordinate(SHORT x, SHORT y);
 	void PrintSystemMessage(std::string str, bool bIsErrorMessage);
 	void PrintBoardCharByCoordinate(int x, int y);
 	void SetAndPrintBoardCursor(eInputKeys key);
 	ePlaceErrorCodes PlaceStone();
+	void CheckForbiddenMoves();
+	int CountContinuousStones(int x, int y, eDirection dir);
 	bool CheckMeetRules(int count);
 	bool CheckGameOver();
-	void CheckRenju();
 	eInputKeys GetInputKey();
 public:
 	GameManager();

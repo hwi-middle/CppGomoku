@@ -17,7 +17,15 @@ enum class eTurns	//착수 차례가 된 플레이어
 	WHITE
 };
 
-enum class ePlaceErrorCodes
+enum class eDirection	//돌의 갯수를 셀 방향
+{
+	VERTICAL,
+	HORIZONTAL,
+	LEFT_UP_DIAGONAL,
+	RIGHT_UP_DIAGONAL
+};
+
+enum class ePlaceErrorCodes	//착수 성공 또는 실패의 원인을 구분하는 코드
 {
 	SUCCESS,
 	FAIL_BROKE_CUR_RULE,

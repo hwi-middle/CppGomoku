@@ -185,7 +185,7 @@ void GameManager::StartGame(void)
 	if (SelectRule() == false)
 	{
 		return;
-	} 
+	}
 
 	DrawBoard();
 	SetConsoleCursorByBoardCoordinate(cursor.X, cursor.Y);
@@ -206,7 +206,7 @@ void GameManager::StartGame(void)
 				PrintSystemMessage("백돌의 차례입니다.", false);
 				break;
 			default:
-				assert(0);
+				assert(false);
 				break;
 			}
 		}
@@ -273,7 +273,7 @@ void GameManager::StartGame(void)
 		PrintSystemMessage("흑돌이 승리하였습니다!", false);
 		break;
 	default:
-		assert(0);
+		assert(false);
 		break;
 	}
 	Sleep(1000);
@@ -281,13 +281,13 @@ void GameManager::StartGame(void)
 	system("pause");
 }
 
-void GameManager::SetConsoleCursorAbsoluteCoordinate(int x, int y)
+void GameManager::SetConsoleCursorAbsoluteCoordinate(SHORT x, SHORT y)
 {
 	COORD cur = { x, y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
 }
 
-void GameManager::SetConsoleCursorByBoardCoordinate(int x, int y)
+void GameManager::SetConsoleCursorByBoardCoordinate(SHORT x, SHORT y)
 {
 	//API는 x와 y가 반대
 	COORD cur = { 2 + y * 2, 1 + x };
@@ -442,7 +442,7 @@ ePlaceErrorCodes GameManager::PlaceStone()
 	case eStones::NONE:
 		break;
 	default:
-		assert(0);
+		assert(false);
 		break;
 	}
 
@@ -459,7 +459,7 @@ ePlaceErrorCodes GameManager::PlaceStone()
 			break;
 		default:
 			std::cout << lastPlaced.X;
-			assert(0);
+			assert(false);
 			break;
 		}
 	}
@@ -480,13 +480,202 @@ ePlaceErrorCodes GameManager::PlaceStone()
 		turn = eTurns::BLACK;
 		break;
 	default:
-		assert(0);
+		assert(false);
 		break;
 	}
 	lastPlaced = { cursor.X, cursor.Y };
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
 	return ePlaceErrorCodes::SUCCESS;
+}
+
+void GameManager::CheckForbiddenMoves()
+{
+	assert(turn == eTurns::BLACK);
+
+	//장수 확인
+	for (int i = 0; i < 15; i++)
+	{
+		for (int j = 0; j < 15; j++)
+		{
+			if (board[i][j] == eStones::NONE)
+			{
+
+			}
+		}
+	}
+}
+
+int GameManager::CountContinuousStones(int x, int y, eDirection dir)
+{
+	final_stones.clear();
+	std::pair<int, int> pos = { x, y };
+	int count = 1;
+	int posRow;
+	int posCol;
+	eStones color;
+
+	switch (turn)
+	{
+	case eTurns::BLACK:
+		color = eStones::BLACK;
+		break;
+	case eTurns::WHITE:
+		color = eStones::WHITE;
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	switch (dir)
+	{
+	case eDirection::VERTICAL:
+		final_stones.push_back({ pos.X, pos.Y });
+		count = 1;
+		posRow = pos.X + 1;
+		while (posRow < BOARD_SIZE)
+		{
+			if (board[posRow][pos.Y] == color)
+			{
+				final_stones.push_back({ posRow, pos.Y });
+				count++;
+				posRow++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		posRow = pos.X - 1;
+		while (posRow >= 0)
+		{
+			if (board[posRow][pos.Y] == color)
+			{
+				final_stones.push_back({ posRow, pos.Y });
+				count++;
+				posRow--;
+			}
+			else
+			{
+				break;
+			}
+		}
+		break;
+	case eDirection::HORIZONTAL:
+		final_stones.push_back({ pos.X, pos.Y });
+		count = 1;
+		posCol = pos.Y + 1;
+		while (posCol < BOARD_SIZE)
+		{
+			if (board[pos.X][posCol] == color)
+			{
+				final_stones.push_back({ pos.X, posCol });
+				count++;
+				posCol++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		posCol = pos.Y - 1;
+		while (posCol >= 0)
+		{
+			if (board[pos.X][posCol] == color)
+			{
+				final_stones.push_back({ pos.X, posCol });
+				count++;
+				posCol--;
+			}
+			else
+			{
+				break;
+			}
+		}
+		break;
+	case eDirection::LEFT_UP_DIAGONAL:
+		final_stones.push_back({ pos.X, pos.Y });
+		count = 1;
+		posRow = pos.X + 1;
+		posCol = pos.Y + 1;
+		while (posCol < BOARD_SIZE && posRow < BOARD_SIZE)
+		{
+			if (board[posRow][posCol] == color)
+			{
+				final_stones.push_back({ posRow, posCol });
+				count++;
+				posCol++;
+				posRow++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		posRow = pos.X - 1;
+		posCol = pos.Y - 1;
+		while (posCol >= 0 && posRow >= 0)
+		{
+			if (board[posRow][posCol] == color)
+			{
+				final_stones.push_back({ posRow, posCol });
+				count++;
+				posCol--;
+				posRow--;
+			}
+			else
+			{
+				break;
+			}
+		}
+		break;
+	case eDirection::RIGHT_UP_DIAGONAL:
+		final_stones.push_back({ pos.X, pos.Y });
+		count = 1;
+		posRow = pos.X - 1;
+		posCol = pos.Y + 1;
+		while (posCol < BOARD_SIZE && posRow >= 0)
+		{
+			if (board[posRow][posCol] == color)
+			{
+				final_stones.push_back({ posRow, posCol });
+				count++;
+				posCol++;
+				posRow--;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		posRow = pos.X + 1;
+		posCol = pos.Y - 1;
+		while (posCol >= 0 && posRow < BOARD_SIZE)
+		{
+			if (board[posRow][posCol] == color)
+			{
+				final_stones.push_back({ posRow, posCol });
+				count++;
+				posCol--;
+				posRow++;
+			}
+			else
+			{
+				break;
+			}
+		}
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	return count;
 }
 
 bool GameManager::CheckMeetRules(int count)
@@ -511,198 +700,18 @@ bool GameManager::CheckMeetRules(int count)
 
 bool GameManager::CheckGameOver()
 {
-	int count;
-	int posRow;
-	int posCol;
-
-	eStones color;
-	switch (turn)
-	{
-	case eTurns::BLACK:
-		color = eStones::BLACK;
-		break;
-	case eTurns::WHITE:
-		color = eStones::WHITE;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-
-	//가로 점수 확인 
-	final_stones.push_back({ cursor.X, cursor.Y });
-	count = 1;
-	posCol = cursor.Y + 1;
-	while (posCol < BOARD_SIZE)
-	{
-		if (board[cursor.X][posCol] == color)
-		{
-			final_stones.push_back({ cursor.X, posCol });
-			count++;
-			posCol++;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	posCol = cursor.Y - 1;
-	while (posCol >= 0)
-	{
-		if (board[cursor.X][posCol] == color)
-		{
-			final_stones.push_back({ cursor.X, posCol });
-			count++;
-			posCol--;
-		}
-		else
-		{
-			break;
-		}
-	}
+	eDirection dir[] = { eDirection::VERTICAL, eDirection::HORIZONTAL, eDirection::LEFT_UP_DIAGONAL, eDirection::RIGHT_UP_DIAGONAL };
 
 	//승리조건을 만족하는지 판단
-	if (CheckMeetRules(count) == true)
+	for (int i = 0; i < 4; i++)
 	{
-		return true;
-	}
-
-	//세로 점수 확인 
-	final_stones.clear();
-	final_stones.push_back({ cursor.X, cursor.Y });
-	count = 1;
-	posRow = cursor.X + 1;
-	while (posRow < BOARD_SIZE)
-	{
-		if (board[posRow][cursor.Y] == color)
+		if (CheckMeetRules(CountContinuousStones(cursor.X, cursor.Y, dir[i])) == true)
 		{
-			final_stones.push_back({ posRow, cursor.Y });
-			count++;
-			posRow++;
-		}
-		else
-		{
-			break;
+			return true;
 		}
 	}
 
-	posRow = cursor.X - 1;
-	while (posRow >= 0)
-	{
-		if (board[posRow][cursor.Y] == color)
-		{
-			final_stones.push_back({ posRow, cursor.Y });
-			count++;
-			posRow--;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	//승리조건을 만족하는지 판단
-	if (CheckMeetRules(count) == true)
-	{
-		return true;
-	}
-
-	//좌상향 대각선 점수 확인 
-	final_stones.clear();
-	final_stones.push_back({ cursor.X, cursor.Y });
-	count = 1;
-	posRow = cursor.X + 1;
-	posCol = cursor.Y + 1;
-	while (posCol < BOARD_SIZE && posRow < BOARD_SIZE)
-	{
-		if (board[posRow][posCol] == color)
-		{
-			final_stones.push_back({ posRow, posCol });
-			count++;
-			posCol++;
-			posRow++;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	posRow = cursor.X - 1;
-	posCol = cursor.Y - 1;
-	while (posCol >= 0 && posRow >= 0)
-	{
-		if (board[posRow][posCol] == color)
-		{
-			final_stones.push_back({ posRow, posCol });
-			count++;
-			posCol--;
-			posRow--;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	//승리조건을 만족하는지 판단
-	if (CheckMeetRules(count) == true)
-	{
-		return true;
-	}
-
-	//우상향 대각선 점수 확인 
-	final_stones.clear();
-	final_stones.push_back({ cursor.X, cursor.Y });
-	count = 1;
-	posRow = cursor.X - 1;
-	posCol = cursor.Y + 1;
-	while (posCol < BOARD_SIZE && posRow >= 0)
-	{
-		if (board[posRow][posCol] == color)
-		{
-			final_stones.push_back({ posRow, posCol });
-			count++;
-			posCol++;
-			posRow--;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	posRow = cursor.X + 1;
-	posCol = cursor.Y - 1;
-	while (posCol >= 0 && posRow < BOARD_SIZE)
-	{
-		if (board[posRow][posCol] == color)
-		{
-			final_stones.push_back({ posRow, posCol });
-			count++;
-			posCol--;
-			posRow++;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	//승리조건을 만족하는지 판단
-	if (CheckMeetRules(count) == true)
-	{
-		return true;
-	}
-
-	final_stones.clear();
 	return false;
-}
-
-void GameManager::CheckRenju()
-{
-
 }
 
 void GameManager::DrawBoard()
