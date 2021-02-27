@@ -300,7 +300,8 @@ void GameManager::SetConsoleCursorAbsoluteCoordinate(SHORT x, SHORT y)
 void GameManager::SetConsoleCursorByBoardCoordinate(SHORT x, SHORT y)
 {
 	//API는 x와 y가 반대
-	COORD cur = { 2 + y * 2, 1 + x };
+	bool check = false;
+	COORD cur = { 3 + y * 2, 1 + x };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
 }
 
@@ -755,7 +756,7 @@ bool GameManager::CheckGameOver()
 void GameManager::DrawBoard()
 {
 	system("cls");
-	std::cout << "  ";
+	std::cout << "    ";
 	for (int i = 0; i < BOARD_SIZE; i++)
 	{
 		std::cout << (char)('A' + i) << " ";
@@ -764,7 +765,12 @@ void GameManager::DrawBoard()
 
 	for (int i = 0; i < BOARD_SIZE; i++)
 	{
-		std::cout << (char)('A' + i) << " ";
+		if (i < 9)
+		{
+			std::cout << " ";
+		}
+		std::cout << i + 1 << " ";
+
 		for (int j = 0; j < BOARD_SIZE; j++)
 		{
 			PrintBoardCharByCoordinate(i, j);
