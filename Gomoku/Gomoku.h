@@ -17,7 +17,7 @@ enum class eTurns	//착수 차례가 된 플레이어
 	WHITE
 };
 
-enum class eDirection	//돌의 갯수를 셀 방향
+enum class eDirection	//탐색 방향
 {
 	VERTICAL,
 	HORIZONTAL,

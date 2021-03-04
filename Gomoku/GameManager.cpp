@@ -8,6 +8,10 @@
 
 GameManager::GameManager() :bGameOver(false), bRefreshNeeded(true), cursor({ 0,0 }), lastPlaced({ -1,-1 }), turn(eTurns::BLACK), currentRule(eRules::FREE)
 {
+	dir[0] = eDirection::VERTICAL;
+	dir[1] = eDirection::HORIZONTAL;
+	dir[2] = eDirection::LEFT_UP_DIAGONAL;
+	dir[3] = eDirection::RIGHT_UP_DIAGONAL;
 	for (int x = 0; x < BOARD_SIZE; x++)
 	{
 		for (int y = 0; y < BOARD_SIZE; y++)
@@ -509,8 +513,6 @@ ePlaceErrorCodes GameManager::PlaceStone()
 void GameManager::PrintForbiddenMoves()
 {
 	assert(currentRule == eRules::RENJU);
-	//장수 확인
-	eDirection dir[] = { eDirection::VERTICAL, eDirection::HORIZONTAL, eDirection::LEFT_UP_DIAGONAL, eDirection::RIGHT_UP_DIAGONAL };
 
 	if (turn == eTurns::BLACK)
 	{
@@ -523,7 +525,19 @@ void GameManager::PrintForbiddenMoves()
 				{
 					for (int i = 0; i < 4; i++)
 					{
+						bool forbidden = false;
+						//장수 확인
 						if (CountContinuousStones(x, y, dir[i]) > 5)
+						{
+							forbidden = true;
+						}
+						//33 확인
+						else if (CheckDoubleThree(x, y, eStones::BLACK))
+						{
+							forbidden = true;
+						}
+
+						if (forbidden == true)
 						{
 							board[x][y] = eStones::FORBIDDEN;
 							forbiddenMoves.push_back(std::make_pair(x, y));
@@ -548,6 +562,7 @@ void GameManager::PrintForbiddenMoves()
 int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 {
 	finalStones.clear();
+	sideStones.clear();
 	std::pair<int, int> pos = { x, y };
 	int count = 1;
 	int posRow;
@@ -586,6 +601,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 				break;
 			}
 		}
+		sideStones.push_back({ posRow, posCol });
 
 		posRow = pos.X - 1;
 		while (posRow >= 0)
@@ -601,6 +617,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 				break;
 			}
 		}
+		sideStones.push_back({ posRow, posCol });
 		break;
 	case eDirection::HORIZONTAL:
 		finalStones.push_back({ pos.X, pos.Y });
@@ -619,6 +636,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 				break;
 			}
 		}
+		sideStones.push_back({ posRow, posCol });
 
 		posCol = pos.Y - 1;
 		while (posCol >= 0)
@@ -634,6 +652,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 				break;
 			}
 		}
+		sideStones.push_back({ posRow, posCol });
 		break;
 	case eDirection::LEFT_UP_DIAGONAL:
 		finalStones.push_back({ pos.X, pos.Y });
@@ -654,6 +673,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 				break;
 			}
 		}
+		sideStones.push_back({ posRow, posCol });
 
 		posRow = pos.X - 1;
 		posCol = pos.Y - 1;
@@ -670,7 +690,8 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 			{
 				break;
 			}
-		}
+		}		
+		sideStones.push_back({ posRow, posCol });
 		break;
 	case eDirection::RIGHT_UP_DIAGONAL:
 		finalStones.push_back({ pos.X, pos.Y });
@@ -691,6 +712,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 				break;
 			}
 		}
+		sideStones.push_back({ posRow, posCol });
 
 		posRow = pos.X + 1;
 		posCol = pos.Y - 1;
@@ -708,6 +730,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 				break;
 			}
 		}
+		sideStones.push_back({ posRow, posCol });
 		break;
 	default:
 		assert(false);
@@ -717,7 +740,7 @@ int GameManager::CountContinuousStones(int x, int y, eDirection dir)
 	return count;
 }
 
-bool GameManager::CheckMeetRules(int count)
+bool GameManager::CheckMeetVictoryCondition(int count)
 {
 	if (currentRule == eRules::FREE && count == 5)
 	{
@@ -737,6 +760,46 @@ bool GameManager::CheckMeetRules(int count)
 	return false;
 }
 
+bool GameManager::CheckOpenFour(int x, int y, eDirection dir, eStones color)
+{
+	if (CountContinuousStones(x, y, dir) == false)
+	{
+		return false;
+	}
+	for (int i = 0; i < 2; i++)
+	{
+		if (sideStones[i].X >= BOARD_SIZE || sideStones[i].Y >= BOARD_SIZE || sideStones[i].X < 0 || sideStones[i].Y < 0)
+		{
+			return false;
+		}
+	}
+
+	bool res = true;
+	
+
+	return false;
+}
+bool GameManager::CheckDoubleThree(int x, int y, eStones color)
+{
+	assert(board[x][y] == eStones::NONE || board[x][y] == eStones::FORBIDDEN);
+
+	int cnt = 0;
+	board[x][y] = color;
+	for (int i = 0; i < 4; i++)
+	{
+		if (CheckOpenFour(x, y, dir[i], color) == true)
+		{
+			cnt++;
+		}
+	}
+	board[x][y] = eStones::NONE;
+	return (cnt >= 2) ? true : false;
+}
+bool GameManager::CheckDoubleFour(int x, int y, eStones color)
+{
+	return true;
+}
+
 bool GameManager::CheckGameOver()
 {
 	eDirection dir[] = { eDirection::VERTICAL, eDirection::HORIZONTAL, eDirection::LEFT_UP_DIAGONAL, eDirection::RIGHT_UP_DIAGONAL };
@@ -744,7 +807,7 @@ bool GameManager::CheckGameOver()
 	//승리조건을 만족하는지 판단
 	for (int i = 0; i < 4; i++)
 	{
-		if (CheckMeetRules(CountContinuousStones(cursor.X, cursor.Y, dir[i])) == true)
+		if (CheckMeetVictoryCondition(CountContinuousStones(cursor.X, cursor.Y, dir[i])) == true)
 		{
 			return true;
 		}

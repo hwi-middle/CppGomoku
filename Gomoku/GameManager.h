@@ -7,12 +7,14 @@ class GameManager
 {
 private:
 	eStones board[BOARD_SIZE][BOARD_SIZE];
+	eDirection dir[4];
 	eTurns turn;
 	eRules currentRule;
 	std::pair<int, int> cursor;
 	std::pair<int, int> lastPlaced;
 	std::vector<std::pair<int, int>> finalStones;
 	std::vector<std::pair<int, int>> forbiddenMoves;
+	std::vector<std::pair<int, int>> sideStones;
 	bool bGameOver;
 	bool bRefreshNeeded;
 	bool SelectRule();
@@ -25,7 +27,10 @@ private:
 	ePlaceErrorCodes PlaceStone();
 	void PrintForbiddenMoves();
 	int CountContinuousStones(int x, int y, eDirection dir);
-	bool CheckMeetRules(int count);
+	bool CheckOpenFour(int x, int y, eDirection dir, eStones color);
+	bool CheckDoubleThree(int x, int y, eStones color);
+	bool CheckDoubleFour(int x, int y, eStones color);
+	bool CheckMeetVictoryCondition(int count);
 	bool CheckGameOver();
 	eInputKeys GetInputKey();
 public:
